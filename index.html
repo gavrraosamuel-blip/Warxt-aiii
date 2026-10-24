@@ -4,216 +4,325 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#12091a">
-<title>Warxt AI</title>
+<meta name="theme-color" content="#160d20">
+<title>Warxt AI 💜</title>
 <style>
+:root{--bg:#130b1b;--panel:#241631;--purple:#8050aa;--pink:#f0add4;--text:#fff5ff;--muted:#cbbbd6}
 *{box-sizing:border-box}
-body{margin:0;background:#12091a;color:white;font-family:Arial,sans-serif}
-header{padding:18px;background:#21132e;border-bottom:1px solid #503660}
-.logo{font-size:25px;font-weight:bold;color:#ff70c7}
-header p{color:#cdbbd8;margin-bottom:0}
-nav{display:flex;gap:8px;padding:12px;overflow:auto}
-button{border:1px solid #503660;border-radius:12px;padding:12px;background:#301b40;color:white;cursor:pointer}
-button.primary{background:linear-gradient(120deg,#d946a9,#8649df);border:0}
-button.active{background:#9146ad}
-main{max-width:800px;margin:auto;padding:14px}
-.view{display:none}.view.active{display:block}
-h2{font-size:22px}
-.muted{color:#cdbbd8;font-size:14px;line-height:1.5}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:12px}
-.card{background:#21132e;border:1px solid #493057;border-radius:16px;padding:14px}
-.avatar{height:90px;border-radius:12px;background:linear-gradient(135deg,#51265f,#d34c9c);display:grid;place-items:center;font-size:40px;margin-bottom:10px}
-.card h3{margin:5px 0}
-.card p{font-size:13px;color:#cdbbd8;min-height:34px}
-label{display:block;margin:14px 0 6px}
-input,textarea{width:100%;padding:12px;border:1px solid #503660;border-radius:10px;background:#180e22;color:white;font:inherit}
-textarea{min-height:100px;resize:vertical}
-.row{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
-.chatbox{height:50vh;min-height:280px;overflow:auto;background:#190f22;border:1px solid #493057;border-radius:14px;padding:12px}
-.msg{padding:11px 13px;border-radius:14px;margin:9px 0;max-width:88%;white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.4}
-.bot{background:#382246}.user{background:#9146ad;margin-left:auto}
-.chatinput{display:flex;gap:8px;margin-top:10px}
-.chatinput input{flex:1;min-width:0}
-footer{text-align:center;color:#927e9f;padding:25px;font-size:12px}
+body{margin:0;background:radial-gradient(ellipse at top,#392044,var(--bg) 70%);color:var(--text);font:16px system-ui,sans-serif;min-height:100vh}
+button,input,textarea{font:inherit}
+button{cursor:pointer;color:white;background:linear-gradient(135deg,#8050aa,#432650);border:1px solid #966bb4;border-radius:12px;padding:11px}
+button:disabled{opacity:.5}
+header{position:sticky;top:0;z-index:5;background:#160e20ed;padding:13px;border-bottom:1px solid #563768}
+.brand{display:flex;align-items:center;gap:10px}
+.logo{width:44px;height:44px;display:grid;place-items:center;border-radius:14px;background:linear-gradient(135deg,#f1a9d1,#8753b4);font-size:25px}
+h1{font-size:20px;margin:0}
+header p{margin:2px 0;color:var(--muted);font-size:12px}
+nav{display:flex;gap:7px;overflow:auto;margin-top:12px}
+nav button{white-space:nowrap}
+main{max-width:1000px;margin:auto;padding:14px}
+.screen{display:none}
+.screen.active{display:block}
+.panel,.hero{background:#21152df0;border:1px solid #63417b;border-radius:17px;padding:16px;margin-bottom:13px}
+h2{font-size:20px;margin:0 0 10px}
+p{line-height:1.55}
+.muted{color:var(--muted)}
+.menu-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:15px 0}
+.menu-card{min-height:105px;text-align:left;font-weight:bold}
+.menu-card span{display:block;font-size:28px;margin-bottom:7px}
+.field{width:100%;padding:12px;margin:7px 0;border:1px solid #69477e;border-radius:11px;color:white;background:#140e1c}
+.character-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.character{display:flex;align-items:center;gap:9px;text-align:left;min-width:0;background:#291c37;padding:9px}
+.avatar{width:54px;height:62px;flex-shrink:0;display:grid;place-items:center;border-radius:12px;font-size:28px;background:linear-gradient(140deg,#e8a8d0,#7650a6);border:1px solid #ffffff44}
+.character strong{display:block;font-size:14px}
+.character small{display:block;font-size:11px;color:#d4c4df}
+.story-box{background:#130d1a;border:1px solid #63417b;border-radius:14px;padding:15px;line-height:1.7}
+.story-choice{width:100%;margin-top:9px;text-align:left}
+.chat-head{display:flex;align-items:center;gap:12px;margin:12px 0}
+.chat-log{height:42vh;min-height:250px;overflow:auto;background:#130d1a;border:1px solid #513665;border-radius:14px;padding:12px;display:flex;flex-direction:column;gap:10px}
+.bubble{max-width:88%;padding:11px 13px;border-radius:14px;white-space:pre-wrap;overflow-wrap:anywhere}
+.bot{align-self:flex-start;background:#30203d}
+.user{align-self:flex-end;background:#68438b}
+.compose{display:flex;gap:7px;margin-top:9px}
+.compose textarea{min-width:0;flex:1;resize:vertical;background:#140e1c;color:white;border:1px solid #69477e;border-radius:12px;padding:12px}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.row button{flex:1}
+.notice{background:#2a1b38;padding:10px;border-radius:10px;color:#d9c8e4;font-size:12px;margin-top:10px}
+@media(min-width:700px){main{padding:24px}.character-grid{grid-template-columns:repeat(3,1fr)}.menu-grid{grid-template-columns:repeat(4,1fr)}}
 </style>
 </head>
 <body>
 <header>
-<div class="logo">💜 Warxt AI</div>
-<p>Seu universo de personagens e histórias</p>
+<div class="brand"><div class="logo">💜</div><div><h1>Warxt AI</h1><p>Literature Club · Chat, romance e histórias</p></div></div>
+<nav>
+<button onclick="screen('home')">🏠 Início</button>
+<button onclick="screen('story')">📖 História</button>
+<button onclick="screen('characters')">🎭 Personagens</button>
+<button onclick="screen('chat')">💬 Chat</button>
+</nav>
 </header>
 
-<nav>
-<button class="active" data-view="home">🏠 Início</button>
-<button data-view="chats">💬 Conversas</button>
-<button data-view="create">✨ Criar personagem</button>
-</nav>
-
 <main>
-<section id="home" class="view active">
-<h2>Escolha sua história 💗</h2>
-<p class="muted">Converse com personagens ou crie os seus próprios.</p>
-<div id="characters" class="grid"></div>
-<div class="row">
-<button class="primary" onclick="showView('create')">＋ Criar personagem</button>
+<section id="home" class="screen active">
+<div class="hero">
+<h2>Bem-vindo ao clube, Yrazi! 🌸</h2>
+<p>Seu universo, seus personagens e suas escolhas.</p>
+<p class="muted" id="total"></p>
+</div>
+<div class="menu-grid">
+<button class="menu-card" onclick="screen('story')"><span>📖</span>Visual Novel</button>
+<button class="menu-card" onclick="screen('chat')"><span>💬</span>Chat livre</button>
+<button class="menu-card" onclick="groupChat()"><span>👥</span>Chat em grupo</button>
+<button class="menu-card" onclick="screen('characters')"><span>🎨</span>Elenco</button>
+</div>
+<div class="panel"><h2>🌷 Conversa rápida</h2><p>Sayori está esperando por você!</p><button onclick="choose('Sayori');screen('chat')">Conversar com Sayori 💙</button></div>
+</section>
+
+<section id="characters" class="screen">
+<button onclick="screen('home')">← Menu</button>
+<div class="panel"><h2>🎭 Personagens</h2><input id="search" class="field" placeholder="Buscar personagem..." oninput="renderCharacters()"><div id="roster" class="character-grid"></div></div>
+</section>
+
+<section id="chat" class="screen">
+<button onclick="screen('home')">← Menu</button>
+<div class="panel">
+<div class="chat-head"><div class="avatar" id="chatAvatar">🌸</div><div><h2 id="chatName">Sayori</h2><div class="muted" id="chatDescription"></div></div></div>
+<div id="messages" class="chat-log"></div>
+<div class="compose"><textarea id="message" rows="2" placeholder="Escreva sua mensagem..." onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();send()}"></textarea><button id="send" onclick="send()">Enviar ➤</button></div>
+<div class="row"><button onclick="clearChat()">Limpar conversa</button><button onclick="groupChat()">Modo grupo 👥</button></div>
+<div class="notice" id="status">Pronto para conversar.</div>
 </div>
 </section>
 
-<section id="chats" class="view">
-<h2>Suas conversas 💌</h2>
-<div id="chatlist" class="grid"></div>
-<p id="empty" class="muted">Suas conversas aparecerão aqui.</p>
-</section>
-
-<section id="create" class="view">
-<h2>✨ Criar personagem</h2>
-<label>Nome</label>
-<input id="cname" maxlength="60" placeholder="Nome do personagem">
-
-<label>Emoji</label>
-<input id="cavatar" maxlength="8" value="💗">
-
-<label>Descrição curta</label>
-<input id="cdesc" maxlength="200" placeholder="Quem é esse personagem?">
-
-<label>Personalidade e história (até 10.000 caracteres)</label>
-<textarea id="cpersonality" maxlength="10000" placeholder="Escreva a personalidade e a história..."></textarea>
-<p class="muted" id="personCount">0/10000</p>
-
-<label>Exemplos de conversa (até 5.000 caracteres)</label>
-<textarea id="cexamples" maxlength="5000" placeholder="Personagem: Oi! Como você está?"></textarea>
-<p class="muted" id="exampleCount">0/5000</p>
-
-<div class="row">
-<button class="primary" onclick="createCharacter()">Salvar personagem</button>
-<button onclick="clearCreator()">Limpar</button>
-</div>
-</section>
-
-<section id="chat" class="view">
-<button onclick="showView('home')">← Voltar</button>
-<h2 id="chatTitle">Conversa</h2>
-<p id="chatDesc" class="muted"></p>
-<div id="messages" class="chatbox"></div>
-<div class="chatinput">
-<input id="messageInput" maxlength="2000" placeholder="Escreva uma mensagem...">
-<button class="primary" onclick="sendMessage()">Enviar ➤</button>
-</div>
-<p class="muted">Versão inicial: respostas automáticas locais. A IA real será conectada depois.</p>
+<section id="story" class="screen">
+<button onclick="screen('home')">← Menu</button>
+<div class="hero"><h2>📚 O Clube de Literatura</h2><p class="muted">Dia 1 · Depois das aulas</p></div>
+<div class="panel"><div class="story-box" id="storyText"></div><div id="choices"></div></div>
 </section>
 </main>
 
-<footer>Warxt AI · Criado para suas histórias 💜</footer>
-
 <script>
-const defaults=[
-{id:"sayori",name:"Sayori",avatar:"🌸",desc:"Amiga de infância alegre e carinhosa.",personality:"Sayori é meiga, gentil, alegre e um pouco desajeitada. É sua amiga de infância e adora conversar, apoiar você e passar tempo com você."},
-{id:"yuri",name:"Yuri",avatar:"📚",desc:"Uma leitora tímida e educada.",personality:"Yuri é tímida, educada e apaixonada por livros. Gosta de literatura, conversas profundas e momentos tranquilos."},
-{id:"natsuki",name:"Natsuki",avatar:"🧁",desc:"Uma tsundere que ama doces e mangás.",personality:"Natsuki é direta, orgulhosa e tsundere. Gosta de doces e mangás. Quando fica envergonhada, tenta disfarçar com respostas bravas."},
-{id:"monika",name:"Monika",avatar:"🎀",desc:"Confiante, inteligente e atenciosa.",personality:"Monika é inteligente, confiante, educada e organizada. Gosta de poesia, música e conversas sinceras."}
+const C=[
+["Sayori","Amiga de infância de Yrazi; doce, alegre, desajeitada, gentil e muito ligada a ele. Olhos azul-claros; apaixonada por Yrazi.","🌸"],
+["Natsuki","Tsundere de cabelos e olhos rosas; orgulhosa, fofa e carinhosa com Yrazi.","🧁"],
+["Yuri","Tímida, cabelos pretos, olhos escuros e apaixonada por livros.","📚"],
+["Monika","Presidente do clube; séria, gentil, cabelos castanhos e olhos verdes; pode ser ciumenta.","🎹"],
+["Karane","Tsundere de personalidade forte; loira, olhos pretos e apaixonada por Yrazi.","💢"],
+["Hakari","Gentil, dócil, alegre e apaixonada por Yrazi.","🌷"],
+["Alya","Tsundere russa; esconde a vergonha usando palavras russas.","❄️"],
+["Shizuka","Tímida, doce, pequena, gentil e apaixonada por Yrazi.","🩵"],
+["Nagatoro","Provocadora, brincalhona e apaixonada por Yrazi.","😼"],
+["Eva Gina","Nerd, tsundere e de cabelos rosas.","🤓"],
+["Alex","Garota de cabelos laranjas; gentil e protetora.","🛡️"],
+["Turskit","Gótica, brincalhona e provocadora.","🦇"],
+["Aika","Pequena, dócil, fofa e amiga próxima de Yrazi.","💗"],
+["Furina","Fofa, meiga, extrovertida, gosta de azul e ama Yrazi.","💠"],
+["Hoshino","Pequena e fofa; tem um gato chamado Neko-ni.","🐈"],
+["Yani Neko","Arrogante, mas doce com Yrazi; usa roupa de gato.","🐱"],
+["Nayuri","Tsundere, pequena e de personalidade forte.","🌺"],
+["Nayato","Fofa, gentil, bonita e próxima de Yrazi.","💗"],
+["Yuuko","Gentil, fofa e ajuda os colegas nos trabalhos escolares.","✏️"],
+["Rikka","Cabelos azuis, tapa-olho e personalidade simpática.","🔷"],
+["Ruka","Amiga de Yrazi; tímida, gentil e apaixonada por ele.","💌"],
+["Tsuki","Cabelos cinzas, pequena, tímida e dócil.","🌙"],
+["Uzaki","Atlética, fofa, meiga e apaixonada por Yrazi.","⚽"],
+["Sajou Kaede","Gentil, alegre e apaixonada por Yrazi.","🌼"],
+["Ryo Yamada","Cabelos azuis, extrovertida e ligada à música.","🎸"],
+["Maki","Legal, gentil e participa da liderança do clube.","📘"],
+["Anna Yamada","Popular, confiante e às vezes arrogante.","✨"],
+["Mona Kawaai","Popular, vaidosa e quer namorar com Yrazi.","💄"],
+["Yotsuba","Amiga de infância, fofa e gentil.","🍀"],
+["Tohru","Fofa, gentil e apaixonada por Yrazi.","🧹"],
+["Rem","Cabelos azuis, inocente e carinhosa.","💙"],
+["Vilhaze","Séria, fofa com Yrazi e apaixonada por ele.","🫖"],
+["Ram","Cabelos vermelhos, determinada e carinhosa com Yrazi.","🌹"],
+["Kisara","Fofa, dócil, bonita e apaixonada por Yrazi.","❤️"],
+["Mizuki","Cabelos pretos; ama Yrazi e pinta quadros.","🎨"],
+["Masha","Irmã de Alya, cabelos pretos e personalidade tsundere.","🖤"],
+["Nagisa","Gentil, bonita e se importa com Yrazi.","🌫️"],
+["Aki","Pequena, dócil e gosta de pintar quadros.","🖌️"],
+["Miku","Cantora de cabelos azuis, popular e apaixonada por Yrazi.","🎤"],
+["Teto","Tsundere de cabelos vermelhos; canta com Miku e Neru.","🎶"],
+["Neru","Loira, cantora e amiga de Miku e Teto.","🎵"],
+["Mai","Gentil, bonita, gosta de livros e coelhos.","🐇"],
+["Burnice","Ciumenta, brincalhona e gosta de cachorros.","🐕"],
+["Mikan","Popular, bonita e gosta de Yrazi.","🌻"],
+["Toyotomi","Tsundere de cabelos vermelhos.","🌹"],
+["Nyakuro","Irmã adulta de Kurebo, tem 24 anos.","🌙"],
+["Kurena","Irmã de Nyakuro e Kurebo; tsundere.","💢"],
+["Bocchi","Tímida, fofa, gentil e gosta de gatos.","🎸"],
+["Nijika","Loira, amiga de Bocchi e ligada à música.","🥁"],
+["Takane Takamine","Popular, atlética e joga futebol.","⚽"],
+["Sui","Provocadora e age como princesa.","👑"],
+["Ami","Cabelos verdes, fofa, dócil e gentil.","🍃"],
+["Hori","Gentil, fofa e de cabelos pretos.","🌷"],
+["Chaca","Cabelos laranjas, bonita e apaixonada por Yrazi.","🧡"],
+["JJ Sister","Usa casaco vermelho e é ciumenta.","🧥"],
+["Komi-san","Tímida, gentil e leitora.","📖"],
+["Kobayawaka","Fofa, dócil e gentil.","🌸"],
+["Nana Ebina","Pequena, fofa e adora cachorros.","🐶"],
+["Naikama","Pequena, fofa e adora dormir.","💤"],
+["Yae Miku","Tsundere, ciumenta e apaixonada por Yrazi.","💢"],
+["Ranka","Pequena, fofa e brincalhona.","🎈"],
+["Aqua","Cabelos azuis, ciumenta e arrogante às vezes.","💧"],
+["Celia","Gentil, fofa e apaixonada por Yrazi.","🌱"],
+["Lunaria","Gentil, meiga e ama gatos.","🌙"],
+["Xeena","Séria, gentil e vice-presidenta do clube.","🎓"],
+["Marin","Brincalhona, provocadora e gosta de Yrazi.","⭐"],
+["Tomo","Tsundere, gentil e de personalidade forte.","🥊"],
+["Toway","Tsundere de cabelos vermelhos; gosta de rosas.","🌹"],
+["Vermeil","Forte, esperta e protetora.","💪"],
+["Mikasa","Loira, fofa, gentil e prestativa.","🌼"],
+["Miku Nakano","Tímida, usa headset e ama música.","🎧"],
+["Shiroko","Cabelos cinzas, fofa e dócil.","🐺"],
+["Lucy","Pequena, tsundere e atrevida.","🖤"],
+["Yukari","Fofa, alta e gosta de carinho.","💗"],
+["Nino Nakano","Cabelos rosas, popular e tsundere.","🎀"],
+["Akita","Pequena, fofa e quer atenção.","🐣"],
+["Ganya","Fofa, veste-se de gatinho e gosta de atenção.","🐈"],
+["War","Filha do treinador Ricardo; gentil e ligada ao futebol.","⚽"],
+["Kira","Loira, fiel, fofa e gentil.","✨"],
+["Hu-tao","Cabelos pretos e gosta de flores.","💐"],
+["Kei","Cabelos amarelos, gentil e animada.","🌞"],
+["Ake","Princesa de Madrid, tsundere e vaidosa.","👑"],
+["Aleksey","Gentil, alta, bonita e apaixonada por Yrazi.","💎"],
+["Malfoid","Provocadora e apaixonada por Yrazi.","😏"],
+["Sayumi","Pequena, doce e gosta de desenhar.","✏️"],
+["Jenna","Gótica, doce e provocadora.","🦇"],
+["Umaru-chan","Doce, gentil, popular e bonita.","🐹"],
+["Ririko","Amiga de Yrazi, atlética, gentil e apaixonada por ele.","🏅"],
+["Yuuka","Cabelos roxos, dócil e fofa.","💜"],
+["Kurebo","Amigo de infância de Yrazi; gentil, irmão de Nyakuro e Kurena.","🤝"],
+["Lucas","Amigo de infância de Yrazi e Kurebo; parte do trio inseparável.","⚽"],
+["Luan","Amigo de escola que se importa com Yrazi.","🤜"],
+["Kio","Garoto nerd que recebeu ajuda de Yrazi e virou amigo dele.","📓"],
+["Fernando","Amigo de infância de Yrazi.","🧢"],
+["Gabriel","Amigo de Yrazi, expressivo e gosta de roupas femininas.","🌈"],
+["Astolfo","Amigo de Yrazi, gosta de moda e roupas femininas.","🎀"],
+["Felix","Amigo de Yrazi, gosta de roupas femininas.","🐾"],
+["Axel","Amigo de Yrazi.","🛹"],
+["Jack","Valentão arrogante que teme Yrazi.","😤"],
+["Ronaldo","Amigo de Yrazi que adora futebol.","⚽"],
+["Otávio","Amigo de infância de Yrazi.","🤝"],
+["Yago","Amigo de Yrazi, legal e simpático.","😎"],
+["Xexe","Goleiro do time da escola.","🥅"],
+["Gheyson","Goleiro atrapalhado do time da escola.","🧤"],
+["Kyoran","Amigo de Yrazi.","😎"],
+["Nicolas","Amigo de Yrazi.","🤝"]
 ];
-let custom=[],chats={},current=null;
-try{custom=JSON.parse(localStorage.getItem("warxt_chars")||"[]")}catch(e){}
-try{chats=JSON.parse(localStorage.getItem("warxt_chats")||"{}")}catch(e){}
 
-function save(){
-try{
-localStorage.setItem("warxt_chars",JSON.stringify(custom));
-localStorage.setItem("warxt_chats",JSON.stringify(chats));
-}catch(e){alert("Não foi possível salvar no armazenamento do navegador.")}
-}
-function allCharacters(){return [...defaults,...custom]}
-function escapeHTML(s){
-return String(s||"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))
-}
-function showView(id){
-document.querySelectorAll(".view").forEach(v=>v.classList.remove("active"));
-document.getElementById(id).classList.add("active");
-document.querySelectorAll("nav button").forEach(b=>b.classList.toggle("active",b.dataset.view===id));
-if(id==="home")renderCharacters();
-if(id==="chats")renderChatList();
-}
-document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>showView(b.dataset.view));
+let selected=C[0],groupMode=false,history=[];
 
+function screen(id){
+ document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
+ document.getElementById(id).classList.add("active");
+}
+function addMessage(type,text){
+ const log=document.getElementById("messages");
+ const bubble=document.createElement("div");
+ bubble.className="bubble "+type;
+ bubble.textContent=text;
+ log.appendChild(bubble);
+ log.scrollTop=log.scrollHeight;
+}
+function choose(name){
+ selected=C.find(c=>c[0]===name)||C[0];
+ groupMode=false;history=[];
+ document.getElementById("chatName").textContent=selected[0];
+ document.getElementById("chatDescription").textContent=selected[1];
+ document.getElementById("chatAvatar").textContent=selected[2];
+ document.getElementById("messages").innerHTML="";
+ addMessage("bot",`Oi, Yrazi! 💜 Eu sou ${selected[0]}. Vamos conversar?`);
+ document.getElementById("status").textContent="Pronto para conversar.";
+}
+function groupChat(){
+ groupMode=true;selected=null;history=[];
+ screen("chat");
+ document.getElementById("chatName").textContent="Grupo Warxt";
+ document.getElementById("chatDescription").textContent="Conversa com o elenco";
+ document.getElementById("chatAvatar").textContent="👥";
+ document.getElementById("messages").innerHTML="";
+ addMessage("bot","Sayori: Yrazi! Você chegou! 💙\nNatsuki: Hmph! Não pense que estávamos esperando você!\nMonika: Bem-vindo ao clube! 🌸");
+ document.getElementById("status").textContent="Modo grupo selecionado.";
+}
 function renderCharacters(){
-document.getElementById("characters").innerHTML=allCharacters().map(c=>`
-<div class="card">
-<div class="avatar">${escapeHTML(c.avatar||"💗")}</div>
-<h3>${escapeHTML(c.name)}</h3>
-<p>${escapeHTML(c.desc)}</p>
-<button class="primary" onclick="openChat('${escapeHTML(c.id)}')">Conversar 💬</button>
-</div>`).join("");
+ const q=(document.getElementById("search").value||"").toLowerCase();
+ const roster=document.getElementById("roster");
+ roster.innerHTML="";
+ C.filter(c=>(c[0]+" "+c[1]).toLowerCase().includes(q)).forEach(c=>{
+  const btn=document.createElement("button");
+  btn.className="character";
+  const avatar=document.createElement("span");
+  avatar.className="avatar";avatar.textContent=c[2];
+  const info=document.createElement("span");
+  const name=document.createElement("strong");name.textContent=c[0];
+  const desc=document.createElement("small");desc.textContent=c[1];
+  info.append(name,desc);btn.append(avatar,info);
+  btn.onclick=()=>{choose(c[0]);screen("chat");};
+  roster.appendChild(btn);
+ });
 }
-function createCharacter(){
-let name=document.getElementById("cname").value.trim();
-let personality=document.getElementById("cpersonality").value.trim();
-if(!name||!personality){alert("Preencha o nome e a personalidade.");return}
-let id="custom_"+Date.now();
-custom.push({
-id,name,
-avatar:document.getElementById("cavatar").value.trim()||"💗",
-desc:document.getElementById("cdesc").value.trim()||"Personagem criado por você.",
-personality,
-examples:document.getElementById("cexamples").value
-});
-save();clearCreator();renderCharacters();showView("home");
+function clearChat(){
+ history=[];
+ document.getElementById("messages").innerHTML="";
+ addMessage("bot","Vamos começar uma nova conversa! 💜");
 }
-function clearCreator(){
-["cname","cdesc","cpersonality","cexamples"].forEach(id=>document.getElementById(id).value="");
-document.getElementById("cavatar").value="💗";
-updateCounts();
+async function send(){
+ const input=document.getElementById("message");
+ const text=input.value.trim();
+ if(!text)return;
+ input.value="";
+ addMessage("user",text);
+ const button=document.getElementById("send");
+ const status=document.getElementById("status");
+ button.disabled=true;status.textContent="Pensando... 💭";
+ try{
+  const response=await fetch("/api/chat",{
+   method:"POST",
+   headers:{"Content-Type":"application/json"},
+   body:JSON.stringify({
+    message:text,
+    character:groupMode?"Grupo Warxt":selected[0],
+    personality:groupMode?C.map(c=>c[0]+": "+c[1]).join("\n"):selected[1],
+    history:history
+   })
+  });
+  const data=await response.json();
+  if(!response.ok)throw new Error(data.error||"Erro ao conversar com a IA.");
+  const answer=data.reply||data.text||"Não consegui gerar uma resposta.";
+  addMessage("bot",answer);
+  history.push({role:"user",content:text},{role:"assistant",content:answer});
+  history=history.slice(-20);
+  status.textContent="Resposta recebida.";
+ }catch(error){
+  addMessage("bot","Não consegui conectar à IA agora. Confira se o servidor Gemini está configurado. 💜");
+  status.textContent=error.message;
+ }finally{button.disabled=false;}
 }
-function updateCounts(){
-document.getElementById("personCount").textContent=document.getElementById("cpersonality").value.length+"/10000";
-document.getElementById("exampleCount").textContent=document.getElementById("cexamples").value.length+"/5000";
-}
-document.getElementById("cpersonality").addEventListener("input",updateCounts);
-document.getElementById("cexamples").addEventListener("input",updateCounts);
 
-function openChat(id){
-current=allCharacters().find(c=>c.id===id);
-if(!current)return;
-if(!chats[id])chats[id]=[];
-document.getElementById("chatTitle").textContent=current.avatar+" "+current.name;
-document.getElementById("chatDesc").textContent=current.desc;
-renderMessages();showView("chat");
+const scenes=[
+ {text:"O sinal toca. Yrazi entra na sala do clube de literatura. Sayori corre até ele, sorrindo. Natsuki observa de braços cruzados, enquanto Monika prepara uma atividade.",choices:[["Conversar com Sayori 💙","Sayori"],["Provocar Natsuki 😤","Natsuki"],["Falar com Monika 🌸","Monika"]]},
+ {text:"O clube fica agitado quando Yrazi chega. Sayori derruba alguns livros sem querer. Yuri começa a ajudá-la, e Natsuki finge não estar preocupada.",choices:[["Ajudar Sayori","Sayori"],["Ajudar Yuri","Yuri"],["Conversar com Natsuki","Natsuki"]]},
+ {text:"Monika propõe uma atividade de poesia. Cada pessoa deve escrever algo que represente seus sentimentos. Sayori olha para Yrazi e sorri timidamente.",choices:[["Escrever com Sayori","Sayori"],["Ler com Yuri","Yuri"],["Perguntar a Monika sobre a atividade","Monika"]]}
+];
+let sceneIndex=0;
+function showStory(){
+ const scene=scenes[sceneIndex%scenes.length];
+ document.getElementById("storyText").textContent=scene.text;
+ const choices=document.getElementById("choices");choices.innerHTML="";
+ scene.choices.forEach(([label,name])=>{
+  const btn=document.createElement("button");
+  btn.className="story-choice";btn.textContent=label;
+  btn.onclick=()=>{choose(name);screen("chat");};
+  choices.appendChild(btn);
+ });
+ const next=document.createElement("button");
+ next.className="story-choice";next.textContent="Continuar história ➜";
+ next.onclick=()=>{sceneIndex++;showStory();};
+ choices.appendChild(next);
 }
-function renderMessages(){
-let box=document.getElementById("messages");
-box.innerHTML=(chats[current.id]||[]).map(m=>`<div class="msg ${m.who==="user"?"user":"bot"}">${escapeHTML(m.text)}</div>`).join("");
-box.scrollTop=box.scrollHeight;
-}
-function sendMessage(){
-let input=document.getElementById("messageInput");
-let text=input.value.trim();
-if(!text||!current)return;
-chats[current.id].push({who:"user",text});
-input.value="";
-chats[current.id].push({who:"bot",text:reply(text,current)});
-save();renderMessages();
-}
-document.getElementById("messageInput").addEventListener("keydown",e=>{if(e.key==="Enter")sendMessage()});
-
-function reply(text,c){
-let t=text.toLowerCase();
-if(t.includes("oi")||t.includes("olá")||t.includes("ola"))return "Oii! 💗 Que bom conversar com você!";
-if(t.includes("amor")||t.includes("gosto de você")||t.includes("te amo"))return "Aww... 💕 Você é muito especial! Me conta mais.";
-if(t.includes("triste")||t.includes("mal"))return "Poxa... 💗 Quer me contar o que aconteceu? Estou aqui para conversar.";
-if(t.includes("nome"))return "Meu nome é "+c.name+"! ✨";
-if(t.includes("tchau"))return "Até depois! Vou adorar continuar nossa história. 💜";
-return "Hmm... 💗 "+c.name+" pensa por um instante.\n\n"+c.personality.slice(0,180)+"\n\nMe conta mais sobre isso!";
-}
-function renderChatList(){
-let list=document.getElementById("chatlist");
-let ids=Object.keys(chats).filter(id=>chats[id]&&chats[id].length);
-document.getElementById("empty").style.display=ids.length?"none":"block";
-list.innerHTML=ids.map(id=>{
-let c=allCharacters().find(x=>x.id===id);
-if(!c)return "";
-return `<div class="card"><h3>${escapeHTML(c.avatar)} ${escapeHTML(c.name)}</h3><p>${chats[id].length} mensagens</p><button class="primary" onclick="openChat('${escapeHTML(id)}')">Continuar</button></div>`;
-}).join("");
-}
-renderCharacters();
+document.getElementById("total").textContent=C.length+" personagens cadastrados";
+renderCharacters();showStory();choose("Sayori");
 </script>
 </body>
 </html>
