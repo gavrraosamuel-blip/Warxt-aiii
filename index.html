@@ -1,125 +1,219 @@
-<!doctype html>
+
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>Warxt Football — Protótipo</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#12091a">
+<title>Warxt AI</title>
 <style>
-*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#111827;font-family:system-ui,Arial;color:white;touch-action:none}
-canvas{display:block;width:100%;height:100%;touch-action:none}
-#hud{position:fixed;inset:0;pointer-events:none}
-.top{position:absolute;top:12px;left:12px;right:12px;display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
-.panel{background:#07111dcc;border:1px solid #ffffff2b;border-radius:12px;padding:8px 12px;box-shadow:0 4px 16px #0005}
-#score{font-weight:900;font-size:20px;letter-spacing:1px}#hint{font-size:12px;opacity:.9;margin-top:2px}
-#message{position:absolute;top:23%;left:50%;transform:translateX(-50%);font-size:clamp(18px,4vw,28px);font-weight:900;text-shadow:0 3px 8px #000;text-align:center;white-space:nowrap}
-#controls{position:absolute;left:0;right:0;bottom:16px;display:flex;justify-content:space-between;align-items:end;padding:0 18px;pointer-events:none}
-#stick{width:124px;height:124px;border-radius:50%;background:#07111d99;border:2px solid #ffffff55;position:relative;pointer-events:auto}
-#knob{position:absolute;width:48px;height:48px;border-radius:50%;background:#dbeafecc;border:2px solid white;left:36px;top:36px}
-.actions{display:flex;gap:12px;align-items:end;pointer-events:auto}
-.act{width:76px;height:76px;border-radius:50%;border:2px solid #ffffffaa;background:#f59e0bcc;color:white;font-weight:900;font-size:13px;box-shadow:0 4px 12px #0006}
-#pass{background:#2563ebcc;width:62px;height:62px}
-#start{position:absolute;inset:0;background:#030712bb;display:flex;align-items:center;justify-content:center;pointer-events:auto;padding:24px}
-.dialog{max-width:420px;background:#0b1728;border:1px solid #ffffff33;border-radius:20px;padding:24px;text-align:center;box-shadow:0 20px 80px #0008}
-.dialog h1{margin:0 0 8px;font-size:28px}.dialog p{line-height:1.45;color:#d1d5db}.dialog button{border:0;border-radius:12px;padding:14px 24px;font-size:17px;font-weight:900;background:#22c55e;color:#052e16}
-.small{font-size:12px;color:#9ca3af}
-@media(min-width:800px){#controls{padding:0 40px 24px}#stick{width:140px;height:140px}#knob{left:43px;top:43px}.act{width:88px;height:88px}}
+*{box-sizing:border-box}
+body{margin:0;background:#12091a;color:white;font-family:Arial,sans-serif}
+header{padding:18px;background:#21132e;border-bottom:1px solid #503660}
+.logo{font-size:25px;font-weight:bold;color:#ff70c7}
+header p{color:#cdbbd8;margin-bottom:0}
+nav{display:flex;gap:8px;padding:12px;overflow:auto}
+button{border:1px solid #503660;border-radius:12px;padding:12px;background:#301b40;color:white;cursor:pointer}
+button.primary{background:linear-gradient(120deg,#d946a9,#8649df);border:0}
+button.active{background:#9146ad}
+main{max-width:800px;margin:auto;padding:14px}
+.view{display:none}.view.active{display:block}
+h2{font-size:22px}
+.muted{color:#cdbbd8;font-size:14px;line-height:1.5}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:12px}
+.card{background:#21132e;border:1px solid #493057;border-radius:16px;padding:14px}
+.avatar{height:90px;border-radius:12px;background:linear-gradient(135deg,#51265f,#d34c9c);display:grid;place-items:center;font-size:40px;margin-bottom:10px}
+.card h3{margin:5px 0}
+.card p{font-size:13px;color:#cdbbd8;min-height:34px}
+label{display:block;margin:14px 0 6px}
+input,textarea{width:100%;padding:12px;border:1px solid #503660;border-radius:10px;background:#180e22;color:white;font:inherit}
+textarea{min-height:100px;resize:vertical}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.chatbox{height:50vh;min-height:280px;overflow:auto;background:#190f22;border:1px solid #493057;border-radius:14px;padding:12px}
+.msg{padding:11px 13px;border-radius:14px;margin:9px 0;max-width:88%;white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.4}
+.bot{background:#382246}.user{background:#9146ad;margin-left:auto}
+.chatinput{display:flex;gap:8px;margin-top:10px}
+.chatinput input{flex:1;min-width:0}
+footer{text-align:center;color:#927e9f;padding:25px;font-size:12px}
 </style>
 </head>
 <body>
-<canvas id="game"></canvas>
-<div id="hud">
- <div class="top">
-  <div class="panel"><div id="score">WARXT 0 — 0 RIVAIS</div><div id="hint">Gols: 0 · Tempo: 60</div></div>
-  <div class="panel" id="help">Offline · Protótipo 3D</div>
- </div>
- <div id="message">Faça um gol!</div>
- <div id="controls">
-  <div id="stick"><div id="knob"></div></div>
-  <div class="actions"><button class="act" id="pass">PASSE</button><button class="act" id="shoot">CHUTE</button></div>
- </div>
+<header>
+<div class="logo">💜 Warxt AI</div>
+<p>Seu universo de personagens e histórias</p>
+</header>
+
+<nav>
+<button class="active" data-view="home">🏠 Início</button>
+<button data-view="chats">💬 Conversas</button>
+<button data-view="create">✨ Criar personagem</button>
+</nav>
+
+<main>
+<section id="home" class="view active">
+<h2>Escolha sua história 💗</h2>
+<p class="muted">Converse com personagens ou crie os seus próprios.</p>
+<div id="characters" class="grid"></div>
+<div class="row">
+<button class="primary" onclick="showView('create')">＋ Criar personagem</button>
 </div>
-<div id="start"><div class="dialog"><h1>⚽ WARXT FOOTBALL</h1><p>Protótipo de futebol com perspectiva 3D, feito para funcionar offline.<br>Controle o Yrazi, drible o rival e chute para marcar!</p><p><b>Celular:</b> arraste o controle à esquerda. Use CHUTE para finalizar e PASSE para empurrar a bola.</p><button id="play">JOGAR</button><p class="small">Versão inicial: treino de finalização · sem internet</p></div></div>
+</section>
+
+<section id="chats" class="view">
+<h2>Suas conversas 💌</h2>
+<div id="chatlist" class="grid"></div>
+<p id="empty" class="muted">Suas conversas aparecerão aqui.</p>
+</section>
+
+<section id="create" class="view">
+<h2>✨ Criar personagem</h2>
+<label>Nome</label>
+<input id="cname" maxlength="60" placeholder="Nome do personagem">
+
+<label>Emoji</label>
+<input id="cavatar" maxlength="8" value="💗">
+
+<label>Descrição curta</label>
+<input id="cdesc" maxlength="200" placeholder="Quem é esse personagem?">
+
+<label>Personalidade e história (até 10.000 caracteres)</label>
+<textarea id="cpersonality" maxlength="10000" placeholder="Escreva a personalidade e a história..."></textarea>
+<p class="muted" id="personCount">0/10000</p>
+
+<label>Exemplos de conversa (até 5.000 caracteres)</label>
+<textarea id="cexamples" maxlength="5000" placeholder="Personagem: Oi! Como você está?"></textarea>
+<p class="muted" id="exampleCount">0/5000</p>
+
+<div class="row">
+<button class="primary" onclick="createCharacter()">Salvar personagem</button>
+<button onclick="clearCreator()">Limpar</button>
+</div>
+</section>
+
+<section id="chat" class="view">
+<button onclick="showView('home')">← Voltar</button>
+<h2 id="chatTitle">Conversa</h2>
+<p id="chatDesc" class="muted"></p>
+<div id="messages" class="chatbox"></div>
+<div class="chatinput">
+<input id="messageInput" maxlength="2000" placeholder="Escreva uma mensagem...">
+<button class="primary" onclick="sendMessage()">Enviar ➤</button>
+</div>
+<p class="muted">Versão inicial: respostas automáticas locais. A IA real será conectada depois.</p>
+</section>
+</main>
+
+<footer>Warxt AI · Criado para suas histórias 💜</footer>
+
 <script>
-(()=>{
-const canvas=document.getElementById('game'),ctx=canvas.getContext('2d');
-const scoreEl=document.getElementById('score'),hintEl=document.getElementById('hint'),msg=document.getElementById('message');
-let W=0,H=0,dpr=1,playing=false,goals=0,enemyGoals=0,time=60,last=0,elapsed=0;
-const player={x:0,y:0,vx:0,vy:0},ball={x:0,y:0,vx:0,vy:0},keeper={x:0,y:0};
-let stick={x:0,y:0,active:false,pid:null},keys={};
-function resize(){dpr=Math.min(devicePixelRatio||1,2);W=innerWidth;H=innerHeight;canvas.width=W*dpr;canvas.height=H*dpr;ctx.setTransform(dpr,0,0,dpr,0,0);resetPositions()}
-function field(){return {left:W*.08,right:W*.92,top:H*.13,bottom:H*.83}}
-function resetPositions(){const f=field();player.x=W*.5;player.y=H*.68;player.vx=player.vy=0;ball.x=W*.5;ball.y=H*.61;ball.vx=ball.vy=0;keeper.x=W*.5}
-function proj(x,y,z=0){const f=field(),depth=(y-f.top)/(f.bottom-f.top);return {x:W*.5+(x-W*.5)*(.52+.48*depth),y:y-z}}
-function draw(){
- ctx.clearRect(0,0,W,H);const f=field();
- // sky / stands
- let sky=ctx.createLinearGradient(0,0,0,H);sky.addColorStop(0,'#14213d');sky.addColorStop(.4,'#263c55');sky.addColorStop(1,'#0b4b31');ctx.fillStyle=sky;ctx.fillRect(0,0,W,H);
- ctx.fillStyle='#273449';ctx.fillRect(W*.04,H*.09,W*.92,H*.12);
- for(let i=0;i<42;i++){ctx.fillStyle=['#ef4444','#f8fafc','#60a5fa','#fbbf24'][i%4];ctx.fillRect(W*.05+i*W*.9/42,H*.105,Math.max(2,W*.012),H*.025)}
- // pitch perspective
- ctx.beginPath();ctx.moveTo(W*.29,f.top);ctx.lineTo(W*.71,f.top);ctx.lineTo(f.right,f.bottom);ctx.lineTo(f.left,f.bottom);ctx.closePath();ctx.fillStyle='#168447';ctx.fill();
- for(let i=0;i<8;i++){let y1=f.top+(f.bottom-f.top)*i/8,y2=f.top+(f.bottom-f.top)*(i+1)/8;let l1=W*.29-(W*.21)*i/8,r1=W*.71+(W*.21)*i/8,l2=W*.29-(W*.21)*(i+1)/8,r2=W*.71+(W*.21)*(i+1)/8;ctx.beginPath();ctx.moveTo(l1,y1);ctx.lineTo(r1,y1);ctx.lineTo(r2,y2);ctx.lineTo(l2,y2);ctx.closePath();ctx.fillStyle=i%2?'#168447':'#1b914c';ctx.fill()}
- // boundary lines
- ctx.strokeStyle='#ffffffbb';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(W*.29,f.top);ctx.lineTo(f.left,f.bottom);ctx.lineTo(f.right,f.bottom);ctx.lineTo(W*.71,f.top);ctx.stroke();
- ctx.beginPath();ctx.moveTo(W*.29,f.top+(f.bottom-f.top)*.19);ctx.lineTo(W*.71,f.top+(f.bottom-f.top)*.19);ctx.stroke();
- // goal
- ctx.strokeStyle='#f8fafc';ctx.lineWidth=4;ctx.strokeRect(W*.405,H*.115,W*.19,H*.065);
- ctx.strokeStyle='#ffffff55';ctx.lineWidth=1;for(let i=1;i<8;i++){ctx.beginPath();ctx.moveTo(W*.405+i*W*.19/8,H*.115);ctx.lineTo(W*.405+i*W*.19/8,H*.18);ctx.stroke()}for(let i=1;i<4;i++){ctx.beginPath();ctx.moveTo(W*.405,H*.115+i*H*.065/4);ctx.lineTo(W*.595,H*.115+i*H*.065/4);ctx.stroke()}
- // penalty area
- ctx.strokeStyle='#ffffffaa';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(W*.36,H*.25);ctx.lineTo(W*.64,H*.25);ctx.lineTo(W*.72,H*.43);ctx.lineTo(W*.28,H*.43);ctx.closePath();ctx.stroke();
- // center circle
- ctx.beginPath();ctx.ellipse(W*.5,H*.53,W*.085,H*.035,0,0,Math.PI*2);ctx.stroke();
- drawPerson(keeper.x,H*.235,'#ef4444','GOL');
- // opponent
- drawPerson(W*.5+Math.sin(elapsed*1.3)*W*.12,H*.43,'#f97316','RIVAL');
- // ball and player
- drawBall(ball.x,ball.y);
- drawPerson(player.x,player.y,'#38bdf8','YRAZI');
- // overlay target
- if(playing){ctx.fillStyle='#ffffff22';ctx.beginPath();ctx.arc(W*.5,H*.18,5,0,Math.PI*2);ctx.fill()}
- requestAnimationFrame(draw)
+const defaults=[
+{id:"sayori",name:"Sayori",avatar:"🌸",desc:"Amiga de infância alegre e carinhosa.",personality:"Sayori é meiga, gentil, alegre e um pouco desajeitada. É sua amiga de infância e adora conversar, apoiar você e passar tempo com você."},
+{id:"yuri",name:"Yuri",avatar:"📚",desc:"Uma leitora tímida e educada.",personality:"Yuri é tímida, educada e apaixonada por livros. Gosta de literatura, conversas profundas e momentos tranquilos."},
+{id:"natsuki",name:"Natsuki",avatar:"🧁",desc:"Uma tsundere que ama doces e mangás.",personality:"Natsuki é direta, orgulhosa e tsundere. Gosta de doces e mangás. Quando fica envergonhada, tenta disfarçar com respostas bravas."},
+{id:"monika",name:"Monika",avatar:"🎀",desc:"Confiante, inteligente e atenciosa.",personality:"Monika é inteligente, confiante, educada e organizada. Gosta de poesia, música e conversas sinceras."}
+];
+let custom=[],chats={},current=null;
+try{custom=JSON.parse(localStorage.getItem("warxt_chars")||"[]")}catch(e){}
+try{chats=JSON.parse(localStorage.getItem("warxt_chats")||"{}")}catch(e){}
+
+function save(){
+try{
+localStorage.setItem("warxt_chars",JSON.stringify(custom));
+localStorage.setItem("warxt_chats",JSON.stringify(chats));
+}catch(e){alert("Não foi possível salvar no armazenamento do navegador.")}
 }
-function drawPerson(x,y,color,label){
- const scale=.45+Math.max(0,Math.min(1,(y-H*.2)/(H*.7)))*.6;
- ctx.save();ctx.translate(x,y);ctx.scale(scale,scale);
- ctx.fillStyle='#0005';ctx.beginPath();ctx.ellipse(0,7,23,9,0,0,Math.PI*2);ctx.fill();
- // legs
- ctx.strokeStyle='#111827';ctx.lineWidth=8;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(-7,-9);ctx.lineTo(-10,4);ctx.moveTo(7,-9);ctx.lineTo(10,4);ctx.stroke();
- ctx.fillStyle=color;ctx.fillRect(-13,-35,26,28);
- ctx.fillStyle='#f1c7a5';ctx.beginPath();ctx.arc(0,-45,10,0,Math.PI*2);ctx.fill();
- ctx.fillStyle='#1f2937';ctx.beginPath();ctx.arc(0,-49,10,Math.PI,Math.PI*2);ctx.fill();
- ctx.fillStyle='white';ctx.font='bold 8px system-ui';ctx.textAlign='center';ctx.fillText(label,0,-18);
- ctx.restore()
+function allCharacters(){return [...defaults,...custom]}
+function escapeHTML(s){
+return String(s||"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))
 }
-function drawBall(x,y){ctx.fillStyle='#0005';ctx.beginPath();ctx.ellipse(x+2,y+5,9,4,0,0,Math.PI*2);ctx.fill();ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(x,y,8,0,Math.PI*2);ctx.fill();ctx.strokeStyle='#111827';ctx.lineWidth=1.5;ctx.stroke();ctx.fillStyle='#111827';ctx.beginPath();ctx.arc(x,y,3,0,Math.PI*2);ctx.fill()}
-function update(dt){
- if(!playing)return;elapsed+=dt;time=Math.max(0,60-Math.floor(elapsed));if(time===0){playing=false;msg.textContent=`FIM DO TREINO · ${goals} GOLS`;return}
- const f=field(),speed=230;
- let ix=stick.x,iy=stick.y;
- if(keys.ArrowLeft||keys.a)ix=-1;if(keys.ArrowRight||keys.d)ix=1;if(keys.ArrowUp||keys.w)iy=-1;if(keys.ArrowDown||keys.s)iy=1;
- const mag=Math.hypot(ix,iy)||1;player.x+=ix/mag*speed*dt;player.y+=iy/mag*speed*dt;
- player.x=Math.max(W*.25,Math.min(W*.75,player.x));player.y=Math.max(H*.29,Math.min(H*.79,player.y));
- // dribble attraction
- const dx=ball.x-player.x,dy=ball.y-(player.y-20),dist=Math.hypot(dx,dy);
- if(dist<68){ball.vx+=(player.x-ball.x)*dt*7;ball.vy+=(player.y-17-ball.y)*dt*7}
- ball.x+=ball.vx*dt;ball.y+=ball.vy*dt;ball.vx*=Math.pow(.18,dt);ball.vy*=Math.pow(.18,dt);
- ball.x=Math.max(W*.2,Math.min(W*.8,ball.x));ball.y=Math.max(H*.19,Math.min(H*.8,ball.y));
- keeper.x=W*.5+Math.sin(elapsed*1.8)*W*.105;
- // goal check
- if(ball.y<H*.17&&ball.x>W*.405&&ball.x<W*.595){goals++;scoreEl.textContent=`WARXT ${goals} — ${enemyGoals} RIVAIS`;msg.textContent='GOOOOOOL DO YRAZI!';ball.vx=ball.vy=0;setTimeout(()=>{if(playing){msg.textContent='Mais um!';resetPositions()}},700)}
- hintEl.textContent=`Gols: ${goals} · Tempo: ${time}`;
+function showView(id){
+document.querySelectorAll(".view").forEach(v=>v.classList.remove("active"));
+document.getElementById(id).classList.add("active");
+document.querySelectorAll("nav button").forEach(b=>b.classList.toggle("active",b.dataset.view===id));
+if(id==="home")renderCharacters();
+if(id==="chats")renderChatList();
 }
-function action(power){if(!playing)return;const dx=ball.x-player.x,dy=ball.y-(player.y-20);if(Math.hypot(dx,dy)<125){ball.vx+=(W*.5-ball.x)*power;ball.vy-=power*1.65;msg.textContent=power>400?'CHUTÃO DO YRAZI!':'PASSE!';setTimeout(()=>{if(playing)msg.textContent='Faça um gol!'},800)}else{msg.textContent='Chegue mais perto da bola!';setTimeout(()=>{if(playing)msg.textContent='Faça um gol!'},800)}}
-const stickEl=document.getElementById('stick'),knob=document.getElementById('knob');
-function setStick(e){const r=stickEl.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2;let dx=e.clientX-cx,dy=e.clientY-cy,max=42,len=Math.hypot(dx,dy)||1;if(len>max){dx=dx/len*max;dy=dy/len*max}stick.x=dx/max;stick.y=dy/max;knob.style.left=(r.width/2-24+dx)+'px';knob.style.top=(r.height/2-24+dy)+'px'}
-stickEl.addEventListener('pointerdown',e=>{stick.active=true;stick.pid=e.pointerId;stickEl.setPointerCapture(e.pointerId);setStick(e)});
-stickEl.addEventListener('pointermove',e=>{if(stick.active&&e.pointerId===stick.pid)setStick(e)});
-function release(){stick.active=false;stick.x=stick.y=0;knob.style.left='36px';knob.style.top='36px'}
-stickEl.addEventListener('pointerup',release);stickEl.addEventListener('pointercancel',release);
-document.getElementById('shoot').addEventListener('click',()=>action(520));document.getElementById('pass').addEventListener('click',()=>action(220));
-document.getElementById('play').addEventListener('click',()=>{document.getElementById('start').style.display='none';playing=true;elapsed=0;time=60;goals=0;enemyGoals=0;scoreEl.textContent='WARXT 0 — 0 RIVAIS';msg.textContent='Faça um gol!';resetPositions()});
-addEventListener('keydown',e=>{keys[e.key]=true});addEventListener('keyup',e=>{keys[e.key]=false});
-addEventListener('resize',resize);resize();requestAnimationFrame(draw);
-let prev=performance.now();function loop(now){let dt=Math.min((now-prev)/1000,.04);prev=now;update(dt);requestAnimationFrame(loop)}requestAnimationFrame(loop);
-})();
+document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>showView(b.dataset.view));
+
+function renderCharacters(){
+document.getElementById("characters").innerHTML=allCharacters().map(c=>`
+<div class="card">
+<div class="avatar">${escapeHTML(c.avatar||"💗")}</div>
+<h3>${escapeHTML(c.name)}</h3>
+<p>${escapeHTML(c.desc)}</p>
+<button class="primary" onclick="openChat('${escapeHTML(c.id)}')">Conversar 💬</button>
+</div>`).join("");
+}
+function createCharacter(){
+let name=document.getElementById("cname").value.trim();
+let personality=document.getElementById("cpersonality").value.trim();
+if(!name||!personality){alert("Preencha o nome e a personalidade.");return}
+let id="custom_"+Date.now();
+custom.push({
+id,name,
+avatar:document.getElementById("cavatar").value.trim()||"💗",
+desc:document.getElementById("cdesc").value.trim()||"Personagem criado por você.",
+personality,
+examples:document.getElementById("cexamples").value
+});
+save();clearCreator();renderCharacters();showView("home");
+}
+function clearCreator(){
+["cname","cdesc","cpersonality","cexamples"].forEach(id=>document.getElementById(id).value="");
+document.getElementById("cavatar").value="💗";
+updateCounts();
+}
+function updateCounts(){
+document.getElementById("personCount").textContent=document.getElementById("cpersonality").value.length+"/10000";
+document.getElementById("exampleCount").textContent=document.getElementById("cexamples").value.length+"/5000";
+}
+document.getElementById("cpersonality").addEventListener("input",updateCounts);
+document.getElementById("cexamples").addEventListener("input",updateCounts);
+
+function openChat(id){
+current=allCharacters().find(c=>c.id===id);
+if(!current)return;
+if(!chats[id])chats[id]=[];
+document.getElementById("chatTitle").textContent=current.avatar+" "+current.name;
+document.getElementById("chatDesc").textContent=current.desc;
+renderMessages();showView("chat");
+}
+function renderMessages(){
+let box=document.getElementById("messages");
+box.innerHTML=(chats[current.id]||[]).map(m=>`<div class="msg ${m.who==="user"?"user":"bot"}">${escapeHTML(m.text)}</div>`).join("");
+box.scrollTop=box.scrollHeight;
+}
+function sendMessage(){
+let input=document.getElementById("messageInput");
+let text=input.value.trim();
+if(!text||!current)return;
+chats[current.id].push({who:"user",text});
+input.value="";
+chats[current.id].push({who:"bot",text:reply(text,current)});
+save();renderMessages();
+}
+document.getElementById("messageInput").addEventListener("keydown",e=>{if(e.key==="Enter")sendMessage()});
+
+function reply(text,c){
+let t=text.toLowerCase();
+if(t.includes("oi")||t.includes("olá")||t.includes("ola"))return "Oii! 💗 Que bom conversar com você!";
+if(t.includes("amor")||t.includes("gosto de você")||t.includes("te amo"))return "Aww... 💕 Você é muito especial! Me conta mais.";
+if(t.includes("triste")||t.includes("mal"))return "Poxa... 💗 Quer me contar o que aconteceu? Estou aqui para conversar.";
+if(t.includes("nome"))return "Meu nome é "+c.name+"! ✨";
+if(t.includes("tchau"))return "Até depois! Vou adorar continuar nossa história. 💜";
+return "Hmm... 💗 "+c.name+" pensa por um instante.\n\n"+c.personality.slice(0,180)+"\n\nMe conta mais sobre isso!";
+}
+function renderChatList(){
+let list=document.getElementById("chatlist");
+let ids=Object.keys(chats).filter(id=>chats[id]&&chats[id].length);
+document.getElementById("empty").style.display=ids.length?"none":"block";
+list.innerHTML=ids.map(id=>{
+let c=allCharacters().find(x=>x.id===id);
+if(!c)return "";
+return `<div class="card"><h3>${escapeHTML(c.avatar)} ${escapeHTML(c.name)}</h3><p>${chats[id].length} mensagens</p><button class="primary" onclick="openChat('${escapeHTML(id)}')">Continuar</button></div>`;
+}).join("");
+}
+renderCharacters();
 </script>
-</body></html>
+</body>
+</html>
