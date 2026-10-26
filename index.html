@@ -12,13 +12,15 @@ header{background:#241438;padding:20px;text-align:center;border-bottom:2px solid
 header h1{margin:0;color:#c3a4ff}
 main{padding:16px;max-width:600px;margin:auto}
 .card{background:#211532;border:1px solid #63438a;border-radius:15px;padding:15px;margin:12px 0}
-button{background:#9b6bff;color:#160d27;border:0;border-radius:10px;padding:12px;font-weight:bold;cursor:pointer}
+button{background:#9b6bff;color:#160d27;border:0;border-radius:10px;padding:12px;font-weight:bold;cursor:pointer;margin:4px}
+button:disabled{opacity:.6}
 input,textarea{width:100%;padding:12px;margin:7px 0;background:#180f25;color:white;border:1px solid #63438a;border-radius:9px}
-textarea{min-height:90px}
+textarea{min-height:90px;resize:vertical}
 #chat{display:none}
 .msg{background:#332047;padding:12px;border-radius:12px;margin:10px 0;white-space:pre-wrap;overflow-wrap:anywhere}
 .user{background:#65409a;text-align:right}
 small{color:#c7b5dc}
+.status{color:#c3a4ff;white-space:pre-wrap}
 </style>
 </head>
 <body>
@@ -37,10 +39,10 @@ small{color:#c7b5dc}
 <button onclick="novo()">＋ Criar personagem</button>
 </section>
 
-<section id="editor" style="display:none">
+<section id="editor" class="card" style="display:none">
 <h2>Novo personagem</h2>
 <label>Nome</label>
-<input id="nome" placeholder="Nome do personagem">
+<input id="nome" maxlength="200" placeholder="Nome do personagem">
 <label>Personalidade (até 100.000 caracteres)</label>
 <textarea id="personalidade" maxlength="100000" placeholder="Descreva a personalidade..."></textarea>
 <label>Primeira mensagem (até 100.000 caracteres)</label>
@@ -52,59 +54,176 @@ small{color:#c7b5dc}
 <section id="chat" class="card">
 <h2 id="titulo"></h2>
 <div id="mensagens"></div>
+<p id="status" class="status"></p>
 <textarea id="texto" placeholder="Escreva sua mensagem..."></textarea>
-<button onclick="enviar()">Enviar</button>
+<button id="enviarBtn" onclick="enviar()">Enviar</button>
 <button onclick="inicio()">Início</button>
 </section>
-<p><small>Versão inicial: a IA Gemini será conectada na próxima etapa.</small></p>
+<p><small>Warxt AI • Conversas salvas neste navegador.</small></p>
 </main>
+
 <script>
 let personagens=[];
 let atual=-1;
-try{personagens=JSON.parse(localStorage.getItem("warxt_personagens")||"[]")}catch(e){personagens=[]}
-function guardar(){localStorage.setItem("warxt_personagens",JSON.stringify(personagens))}
+
+try{
+ personagens=JSON.parse(localStorage.getItem("warxt_personagens")||"[]");
+ if(!Array.isArray(personagens))personagens=[];
+}catch(e){personagens=[]}
+
+function guardar(){
+ try{
+  localStorage.setItem("warxt_personagens",JSON.stringify(personagens));
+ }catch(e){
+  alert("Não foi possível salvar. O armazenamento do navegador pode estar cheio.");
+ }
+}
+
 function mostrarLista(){
- document.getElementById("lista").innerHTML="";
+ const lista=document.getElementById("lista");
+ lista.innerHTML="";
  personagens.forEach((p,i)=>{
-  let b=document.createElement("button");
+  const card=document.createElement("div");
+  card.className="card";
+  const b=document.createElement("button");
   b.textContent="✨ "+p.nome;
-  b.style.margin="5px";
   b.onclick=()=>abrir(i);
-  document.getElementById("lista").appendChild(b);
+  const excluir=document.createElement("button");
+  excluir.textContent="Excluir";
+  excluir.onclick=()=>{
+   if(confirm("Excluir "+p.nome+" e suas mensagens?")){
+    personagens.splice(i,1);
+    guardar();
+    mostrarLista();
+   }
+  };
+  card.append(b,excluir);
+  lista.appendChild(card);
  });
 }
+
 function esconder(){
- ["home","editor","chat"].forEach(id=>document.getElementById(id).style.display="none");
+ ["home","editor","chat"].forEach(id=>{
+  document.getElementById(id).style.display="none";
+ });
 }
-function inicio(){esconder();document.getElementById("home").style.display="block";mostrarLista()}
-function novo(){esconder();document.getElementById("editor").style.display="block";document.getElementById("nome").value="";document.getElementById("personalidade").value="";document.getElementById("primeira").value=""}
+
+function inicio(){
+ esconder();
+ document.getElementById("home").style.display="block";
+ mostrarLista();
+}
+
+function novo(){
+ esconder();
+ document.getElementById("editor").style.display="block";
+ document.getElementById("nome").value="";
+ document.getElementById("personalidade").value="";
+ document.getElementById("primeira").value="";
+}
+
 function salvar(){
- let nome=document.getElementById("nome").value.trim();
+ const nome=document.getElementById("nome").value.trim();
  if(!nome){alert("Digite o nome do personagem.");return}
- personagens.push({nome:nome,personalidade:document.getElementById("personalidade").value,primeira:document.getElementById("primeira").value,mensagens:[]});
- let p=personagens[personagens.length-1];
- if(p.primeira)p.mensagens.push({de:"ai",texto:p.primeira});
- guardar();atual=personagens.length-1;abrir(atual)
+
+ personagens.push({
+  nome,
+  personalidade:document.getElementById("personalidade").value,
+  primeira:document.getElementById("primeira").value,
+  mensagens:[]
+ });
+
+ const i=personagens.length-1;
+ if(personagens[i].primeira){
+  personagens[i].mensagens.push({
+   de:"ai",
+   texto:personagens[i].primeira
+  });
+ }
+ guardar();
+ abrir(i);
 }
+
 function abrir(i){
- atual=i;esconder();document.getElementById("chat").style.display="block";
+ atual=i;
+ esconder();
+ document.getElementById("chat").style.display="block";
  document.getElementById("titulo").textContent=personagens[i].nome;
- renderizar()
+ document.getElementById("status").textContent="";
+ renderizar();
 }
+
 function renderizar(){
- let area=document.getElementById("mensagens");area.innerHTML="";
+ const area=document.getElementById("mensagens");
+ area.innerHTML="";
+ if(atual<0||!personagens[atual])return;
+
  personagens[atual].mensagens.forEach(m=>{
-  let d=document.createElement("div");d.className="msg "+(m.de==="voce"?"user":"");
-  d.textContent=(m.de==="voce"?"Você: ":"")+m.texto;area.appendChild(d)
- })
+  const d=document.createElement("div");
+  d.className="msg "+(m.de==="voce"?"user":"");
+  d.textContent=(m.de==="voce"?"Você: ":"")+m.texto;
+  area.appendChild(d);
+ });
+ area.scrollTop=area.scrollHeight;
 }
-function enviar(){
- let campo=document.getElementById("texto"),t=campo.value.trim();
- if(!t||atual<0)return;
- personagens[atual].mensagens.push({de:"voce",texto:t});
- personagens[atual].mensagens.push({de:"ai",texto:"Sua mensagem foi salva! A conexão com a Gemini ainda será configurada."});
- campo.value="";guardar();renderizar()
+
+async function enviar(){
+ const campo=document.getElementById("texto");
+ const botao=document.getElementById("enviarBtn");
+ const status=document.getElementById("status");
+ const t=campo.value.trim();
+
+ if(!t||atual<0||botao.disabled)return;
+
+ const p=personagens[atual];
+ p.mensagens.push({de:"voce",texto:t});
+ campo.value="";
+ guardar();
+ renderizar();
+
+ botao.disabled=true;
+ status.textContent="Conectando ao Gemini...";
+
+ try{
+  const resposta=await fetch("/api/chat",{
+   method:"POST",
+   headers:{"Content-Type":"application/json"},
+   body:JSON.stringify({
+    message:t,
+    personality:p.personalidade||"Seja amigável e natural.",
+    history:p.mensagens.slice(-13,-1)
+     .map(m=>(m.de==="voce"?"Usuário: ":"Personagem: ")+m.texto)
+     .join("\n")
+   })
+  });
+
+  const dados=await resposta.json();
+  if(!resposta.ok)throw new Error(dados.error||"Erro do servidor.");
+  if(typeof dados.reply!=="string")throw new Error("Resposta inválida do servidor.");
+
+  p.mensagens.push({de:"ai",texto:dados.reply});
+  status.textContent="";
+ }catch(e){
+  console.error(e);
+  status.textContent="Não consegui conectar ao Gemini. Verifique se o servidor do Render está funcionando.";
+  p.mensagens.push({
+   de:"ai",
+   texto:"Não consegui responder agora. Confira a conexão e tente enviar outra mensagem."
+  });
+ }finally{
+  guardar();
+  renderizar();
+  botao.disabled=false;
+ }
 }
+
+document.getElementById("texto").addEventListener("keydown",e=>{
+ if(e.key==="Enter"&&!e.shiftKey){
+  e.preventDefault();
+  enviar();
+ }
+});
+
 mostrarLista();
 </script>
 </body>
