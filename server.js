@@ -8,7 +8,7 @@ const SITE_URL = "https://warxt-aiii.onrender.com";
 
 app.use((req, res, next) => {
   res.setHeader("Access-Control-Allow-Origin", SITE_URL);
-  res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 
   if (req.method === "OPTIONS") {
@@ -38,36 +38,34 @@ app.post("/api/chat", async (req, res) => {
       });
     }
 
-    if (!process.env.GEMINI_API_KEY) {
-      console.error("GEMINI_API_KEY não configurada.");
+    const apiKey = process.env.GEMINI_API_KEY;
 
+    if (!apiKey) {
       return res.status(500).json({
-        error: "A chave do Gemini não está configurada no servidor."
+        error: "GEMINI_API_KEY não configurada no Render."
       });
     }
 
-    const ai = new GoogleGenAI({
-      apiKey: process.env.GEMINI_API_KEY
-    });
+    const ai = new GoogleGenAI({ apiKey });
 
     const contexto = [
       "Você interpreta o personagem descrito abaixo.",
-      "Responda em português brasileiro, naturalmente.",
+      "Responda em português brasileiro de forma natural.",
       "Respeite a personalidade, a história e o contexto.",
-      "Personalidade e contexto:",
+      "PERSONALIDADE E CONTEXTO:",
       typeof personality === "string"
         ? personality.slice(0, 30000)
         : "Seja amigável e natural.",
-      "Histórico da conversa:",
+      "HISTÓRICO:",
       typeof history === "string"
         ? history.slice(-12000)
         : "",
-      "Mensagem atual do usuário:",
+      "MENSAGEM ATUAL:",
       message.slice(0, 10000)
     ].join("\n\n");
 
     const result = await ai.models.generateContent({
-      model: "gemini-2.5-flash",
+      model: "gemini-3.8-flash",
       contents: contexto
     });
 
@@ -86,7 +84,7 @@ app.post("/api/chat", async (req, res) => {
     );
 
     return res.status(500).json({
-      error: "Falha ao gerar resposta. Confira os logs do servidor."
+      error: "Falha ao gerar resposta. Confira os Logs do Render."
     });
   }
 });
