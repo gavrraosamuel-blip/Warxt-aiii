@@ -27,16 +27,20 @@ app.get("/api/health", (req, res) => {
   res.json({ status: "online" });
 });
 
-const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+const sleep = (ms) =>
+  new Promise((resolve) => setTimeout(resolve, ms));
 
 app.post("/api/chat", async (req, res) => {
   const { message, personality, history } = req.body || {};
 
   if (typeof message !== "string" || !message.trim()) {
-    return res.status(400).json({ error: "Digite uma mensagem válida." });
+    return res.status(400).json({
+      error: "Digite uma mensagem válida."
+    });
   }
 
   const apiKey = process.env.GEMINI_API_KEY;
+
   if (!apiKey) {
     return res.status(500).json({
       error: "A chave do Gemini não está configurada no Render."
@@ -44,12 +48,15 @@ app.post("/api/chat", async (req, res) => {
   }
 
   const contexto = [
-    "Interprete o personagem descrito abaixo.",
-    "Responda em português brasileiro, naturalmente.",
-    "Respeite a personalidade e a história do personagem.",
+    "Você é a inteligência artificial do Warxt AI.",
+    "Responda em português brasileiro de forma natural.",
+    "Interprete o personagem conforme a personalidade fornecida.",
+    "Respeite a história, as emoções e o contexto da conversa.",
     "PERSONALIDADE E CONTEXTO:",
-    typeof personality === "string" ? personality.slice(0, 30000) : "Seja amigável e natural.",
-    "HISTÓRICO:",
+    typeof personality === "string"
+      ? personality.slice(0, 30000)
+      : "Seja amigável e natural.",
+    "HISTÓRICO DA CONVERSA:",
     typeof history === "string" ? history.slice(-12000) : "",
     "MENSAGEM ATUAL:",
     message.slice(0, 10000)
@@ -60,7 +67,7 @@ app.post("/api/chat", async (req, res) => {
   for (let tentativa = 0; tentativa < 3; tentativa++) {
     try {
       const result = await ai.models.generateContent({
-        model: "gemini-3.8-flash",
+        model: "gemini-flash-latest",
         contents: contexto
       });
 
@@ -74,7 +81,8 @@ app.post("/api/chat", async (req, res) => {
       const erro = String(error.message || error);
       console.error(`Tentativa ${tentativa + 1}:`, erro);
 
-      const temporario = /503|UNAVAILABLE|high demand|overloaded|429|RESOURCE_EXHAUSTED|500|502|504/i.test(erro);
+      const temporario =
+        /503|UNAVAILABLE|high demand|overloaded|429|RESOURCE_EXHAUSTED|500|502|504/i.test(erro);
 
       if (!temporario || tentativa === 2) {
         return res.status(503).json({
@@ -90,6 +98,7 @@ app.post("/api/chat", async (req, res) => {
 });
 
 const port = process.env.PORT || 3000;
+
 app.listen(port, "0.0.0.0", () => {
   console.log(`Warxt AI API ativa na porta ${port}`);
 });
