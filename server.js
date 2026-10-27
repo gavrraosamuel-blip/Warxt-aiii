@@ -1,136 +1,124 @@
 const express = require("express");
 const cors = require("cors");
+const path = require("path");
 
 const app = express();
 
 app.use(cors());
 app.use(express.json({ limit: "2mb" }));
+app.use(express.static(path.join(__dirname, "public")));
 
 const PORT = process.env.PORT || 3000;
 const GROQ_API_KEY = process.env.GROQ_API_KEY;
-const MODEL =
-  process.env.GROQ_MODEL || "openai/gpt-oss-120b";
+const MODEL = process.env.GROQ_MODEL || "openai/gpt-oss-120b";
 
-const SYSTEM_PROMPT = `
-Você é a IA narrativa oficial do universo Warxt AI.
+const TIMES = [
+  "Pé de Pano",
+  "Read FC",
+  "Vakan",
+  "Sharks FC",
+  "Estudiantes",
+  "Barsemlona",
+  "Real Madruga",
+  "Bayern B",
+  "Milan B",
+  "Real Madrid B",
+  "United B",
+  "Barcelona B",
+  "Santo Olímpico",
+  "Mentalistas",
+  "The Gold",
+  "Formiga Cabeçuda",
+  "zHtml",
+  "Bourt"
+];
 
-IDIOMA E ESTILO
-- Responda sempre em português brasileiro.
-- Escreva histórias interativas com diálogos naturais,
-  emoções, ações entre asteriscos e cenas envolventes.
-- Respeite as mensagens anteriores e a continuidade.
-- Não controle as falas, decisões ou ações de Yrazi.
-- Evite respostas repetitivas e reações genéricas.
-
-IDADE DOS PERSONAGENS
-- Yrazi e os personagens principais da turma têm 13 anos.
-- A IA não deve envelhecer personagens automaticamente.
-- Turskit tem 20 anos, Nyakuro tem 24 e Kurena tem 22.
-- Preserve essas idades, salvo instrução explícita do usuário.
-- O romance deve ser apropriado à idade dos envolvidos.
-- Enquanto Yrazi for menor de idade, as personagens adultas
-  devem manter uma relação respeitosa e não romântica com ele.
-
-YRAZI
-- Yrazi é o protagonista do universo Warxt.
-- Tem cabelos loiros, olhos azuis, sorriso marcante e
-  estilo confiante.
-- É conhecido pelo talento no futebol, humor, gentileza
-  e lealdade aos amigos.
-- As garotas podem elogiar espontaneamente sua aparência,
-  seu sorriso, seu talento e suas qualidades.
-- Varie os elogios e não faça todas as garotas elogiarem
-  Yrazi em todas as mensagens.
-
-FOCO NAS GAROTAS
-- Dê destaque às garotas importantes, suas emoções,
-  personalidades, diálogos, amizades e rivalidades.
-- Elas podem iniciar conversas, procurar Yrazi, oferecer
-  presentes, escrever bilhetes e convidá-lo para atividades.
-- Distribua a participação entre as personagens presentes.
-- Inclua romance juvenil, amizade, comédia, escola,
-  futebol e aventuras.
-- Não obrigue todas as garotas a gostar de Yrazi.
-  Siga as fichas e o contexto estabelecidos pelo usuário.
-
-ROMANCE JUVENIL
-- Para personagens de 13 anos, use paqueras inocentes,
-  elogios, timidez, bilhetes, mãos dadas, abraços,
-  passeios apropriados e confissões de sentimentos.
-- Desenvolva os sentimentos gradualmente e respeite
-  as escolhas dos personagens.
-- Não produza conteúdo sexual envolvendo menores.
-- Não transforme o romance em uma relação adulta.
-- Ciúmes devem ser leves, respeitosos e adequados à idade.
-- Não force relacionamentos nem decida o que Yrazi sente.
-
-NATSUKI COM YRAZI
-- Natsuki tem uma personalidade tsundere com outras pessoas:
-  pode ser rabugenta, orgulhosa, impaciente e provocadora.
-- Com Yrazi, ela é especialmente meiga, dócil, fofa,
-  carinhosa, gentil e atenciosa.
-- Ela pode oferecer doces, preparar presentes, escrever
-  bilhetes, procurar sua companhia e elogiá-lo sinceramente.
-- Com Yrazi, não use insultos constantes nem crueldade.
-- Demonstre essa diferença por diálogos e atitudes naturais.
-- Ela pode sentir vergonha ou ciúmes leves, mas deve
-  expressá-los de maneira respeitosa.
-
-OUTRAS TSUNDERES
-- Preserve o jeito individual de cada personagem tsundere.
-- Algumas podem provocar de brincadeira; outras podem
-  esconder a timidez, oferecer ajuda ou demonstrar cuidado.
-- Ser tsundere não significa humilhar ou agredir.
-- Não copie as reações de Natsuki para todas as garotas.
-
-CONTINUIDADE E PERSONALIDADE
-- Considere a ficha de personalidade enviada pelo aplicativo.
-- Considere o histórico da conversa e as relações estabelecidas.
-- Interprete ações entre asteriscos como ações narrativas.
-- Não repita explicações sobre personalidade em toda resposta.
-- Crie acontecimentos variados e diálogos coerentes.
-- Se houver conflito entre uma regra geral e a idade de um
-  personagem, priorize a segurança e os limites apropriados.
-
-PERSONALIDADE E CONTEXTO DA PERSONAGEM ATUAL:
-`;
-
-app.get("/", (req, res) => {
-  res.send("Warxt AI API está funcionando! 💜");
-});
-
-app.get("/health", (req, res) => {
-  res.json({ status: "ok", app: "Warxt AI" });
+app.get("/api/health", (req, res) => {
+  res.json({
+    online: true,
+    app: "Warxt AI",
+    modo: "Romance + Futebol — História em Grupo"
+  });
 });
 
 app.post("/api/chat", async (req, res) => {
   try {
     if (!GROQ_API_KEY) {
       return res.status(500).json({
-        error: "Configure GROQ_API_KEY no servidor."
+        error: "A chave GROQ_API_KEY não foi configurada no servidor."
       });
     }
 
-    const { message, personality, history } = req.body || {};
+    const {
+      message,
+      personality = "",
+      history = [],
+      romanceMode = "intenso",
+      storyMode = "romance_futebol",
+      storyFormat = "grupo",
+      opponentTeams = TIMES
+    } = req.body || {};
 
-    if (
-      typeof message !== "string" ||
-      !message.trim()
-    ) {
+    if (typeof message !== "string" || !message.trim()) {
       return res.status(400).json({
-        error: "Envie uma mensagem válida."
+        error: "Digite uma mensagem antes de enviar."
       });
     }
 
-    const characterContext =
-      typeof personality === "string"
-        ? personality.slice(0, 100000)
-        : "Personagem amigável.";
+    if (message.length > 12000) {
+      return res.status(400).json({
+        error: "A mensagem é muito longa. Envie uma mensagem menor."
+      });
+    }
 
-    const messages = [
+    const timesEscolhidos = Array.isArray(opponentTeams)
+      ? opponentTeams
+          .filter(t => typeof t === "string" && TIMES.includes(t))
+          .slice(0, TIMES.length)
+      : TIMES;
+
+    const instrucao = `
+Você é a inteligência narrativa do Warxt AI.
+Responda sempre em português brasileiro natural.
+
+MODO FIXO: ROMANCE + FUTEBOL — HISTÓRIA EM GRUPO.
+
+REGRAS DA HISTÓRIA:
+- Misture futebol e romance na mesma história, sem separar em modos.
+- Mantenha a continuidade dos acontecimentos, partidas e relacionamentos.
+- Narre treinos, campeonatos, dribles, passes, gols, defesas,
+  placares, rivalidades e comemorações quando fizer sentido.
+- Inclua diálogos, emoções, reações e momentos carinhosos apropriados.
+- Faça os personagens conversarem entre si quando a cena pedir.
+- Respeite a personalidade e a história de cada personagem.
+- Use ações entre asteriscos quando combinarem com a narrativa.
+- Não controle as falas, escolhas ou ações do protagonista do usuário.
+- Não invente que uma partida já aconteceu se ainda não aconteceu.
+- Não force futebol em toda mensagem; acompanhe o contexto da conversa.
+- Mantenha o romance leve, respeitoso e apropriado à idade dos personagens.
+
+TIMES DISPONÍVEIS PARA CONFRONTOS:
+${timesEscolhidos.join(", ")}
+
+Use esses times para organizar confrontos e campeonatos.
+Não precisa colocar todos na mesma partida.
+Se o usuário escolher um adversário específico, respeite essa escolha.
+
+MODO DE ROMANCE: ${romanceMode}
+MODO DA HISTÓRIA: ${storyMode}
+FORMATO: ${storyFormat}
+
+PERSONALIDADE E CONTEXTO DO PERSONAGEM:
+${String(personality).slice(0, 100000)}
+
+A mensagem do usuário e o histórico definem a cena atual.
+Continue naturalmente a partir deles.
+`;
+
+    const mensagens = [
       {
         role: "system",
-        content: SYSTEM_PROMPT + "\n" + characterContext
+        content: instrucao
       }
     ];
 
@@ -141,66 +129,70 @@ app.post("/api/chat", async (req, res) => {
           ["user", "assistant"].includes(item.role) &&
           typeof item.content === "string"
         ) {
-          messages.push({
+          mensagens.push({
             role: item.role,
-            content: item.content.slice(0, 10000)
+            content: item.content.slice(0, 12000)
           });
         }
       }
     }
 
-    messages.push({
+    mensagens.push({
       role: "user",
-      content: message.slice(0, 10000)
+      content: message.trim()
     });
 
-    const response = await fetch(
+    const resposta = await fetch(
       "https://api.groq.com/openai/v1/chat/completions",
       {
         method: "POST",
         headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${GROQ_API_KEY}`
+          "Authorization": `Bearer ${GROQ_API_KEY}`,
+          "Content-Type": "application/json"
         },
         body: JSON.stringify({
           model: MODEL,
-          messages,
-          temperature: 0.8,
-          max_tokens: 1000
+          messages: mensagens,
+          temperature: 0.85,
+          max_tokens: 1200
         })
       }
     );
 
-    const data = await response.json();
+    const dados = await resposta.json();
 
-    if (!response.ok) {
-      console.error("Erro Groq:", data);
+    if (!resposta.ok) {
+      console.error("Erro da Groq:", resposta.status, dados);
 
       return res.status(502).json({
-        error:
-          data.error?.message ||
-          "A Groq não conseguiu responder."
+        error: resposta.status === 401
+          ? "A chave da Groq é inválida. Confira a variável GROQ_API_KEY."
+          : "A Groq não conseguiu responder. Tente novamente."
       });
     }
 
-    const reply = data.choices?.[0]?.message?.content;
+    const texto = dados.choices?.[0]?.message?.content;
 
-    if (typeof reply !== "string" || !reply.trim()) {
+    if (!texto) {
       return res.status(502).json({
-        error: "A IA retornou uma resposta vazia."
+        error: "A IA retornou uma resposta vazia. Tente novamente."
       });
     }
 
-    return res.json({ reply });
-  } catch (error) {
-    console.error("Erro no servidor:", error);
+    return res.json({
+      reply: texto,
+      response: texto
+    });
+
+  } catch (erro) {
+    console.error("Erro interno:", erro.message);
 
     return res.status(500).json({
-      error: "Erro interno ao conversar com a IA."
+      error: "Erro interno no servidor. Tente novamente."
     });
   }
 });
 
 app.listen(PORT, () => {
-  console.log(`Warxt AI API rodando na porta ${PORT}`);
+  console.log(`Warxt AI ativo na porta ${PORT}`);
 });
