@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -22,7 +21,7 @@ button{background:linear-gradient(135deg,#ffb8dc,#d7b5ff);color:#35152e;border:0
 button:hover{filter:brightness(1.08)}
 button:disabled{opacity:.6;cursor:wait}
 input,textarea{width:100%;padding:12px;margin:7px 0;background:#180f25;color:var(--text);border:1px solid var(--border);border-radius:10px;font:inherit}
-input:focus,textarea:focus{outline:2px solid var(--pink);border-color:var(--pink)}
+input:focus,textarea:focus,select:focus{outline:2px solid var(--pink);border-color:var(--pink)}
 textarea{min-height:100px;resize:vertical}
 label{display:block;margin-top:12px;color:var(--pink-light)}
 small{color:#d7c1e5}
@@ -43,6 +42,8 @@ footer{text-align:center;color:#d7b5e8;padding:15px}
 .personagem-linha button{flex:1 1 auto}
 #fotoPreview{display:none}
 .foto-acoes{display:flex;flex-wrap:wrap;gap:4px}
+select{width:100%;padding:12px;margin:7px 0;background:#180f25;color:var(--text);border:1px solid var(--border);border-radius:10px;font:inherit}
+.romance-info{color:var(--pink-light);font-size:13px;line-height:1.5}
 @media(max-width:400px){header{padding:16px 8px}main{padding:9px}.card{padding:12px}button{padding:11px 9px}}
 </style>
 </head>
@@ -115,6 +116,29 @@ footer{text-align:center;color:#d7b5e8;padding:15px}
  <div class="sakura">🌸 Uma nova conversa 🌸</div>
  <img id="avatarChat" class="avatar" alt="Avatar do personagem" style="display:none">
  <h2 id="titulo"></h2>
+ <label for="modoRomance">💗 Modo de conversa</label>
+ <select id="modoRomance" onchange="mudarModoRomance(this.value)">
+  <option value="normal">🌸 Normal</option>
+  <option value="romance">💗 Romance</option>
+  <option value="intenso">💞 Romance intenso</option>
+ </select>
+ <p id="romanceInfo" class="romance-info">Conversa normal, respeitando a personalidade do personagem.</p>
+
+ <label for="modoHistoria">⚽💗 Tema da história</label>
+ <select id="modoHistoria" onchange="mudarModoHistoria(this.value)">
+  <option value="normal">🌸 História normal</option>
+  <option value="romance">💗 Romance</option>
+  <option value="futebol">⚽ Futebol</option>
+  <option value="romance_futebol">💞⚽ Romance + Futebol</option>
+ </select>
+
+ <label for="formatoHistoria">👥 Formato da história</label>
+ <select id="formatoHistoria" onchange="mudarFormatoHistoria(this.value)">
+  <option value="grupo">👥 História em grupo</option>
+  <option value="individual">🌷 História individual</option>
+ </select>
+ <p id="grupoInfo" class="romance-info">Modo grupo: a IA pode interpretar vários personagens, diálogos e ações, mantendo cada personalidade distinta.</p>
+
  <div id="mensagens"></div>
  <p id="status" class="status" role="status" aria-live="polite"></p>
  <textarea id="texto" placeholder="Escreva sua mensagem..."></textarea>
@@ -147,6 +171,52 @@ buscas=carregar("warxt_pesquisas",[]);
 if(!Array.isArray(buscas))buscas=[];
 perfil=carregar("warxt_perfil",{usuario:"",persona:""});
 if(!perfil||typeof perfil!=="object")perfil={usuario:"",persona:""};
+
+let romanceMode=carregar("warxt_romance_mode","normal");
+if(!["normal","romance","intenso"].includes(romanceMode))romanceMode="normal";
+let storyMode=carregar("warxt_story_mode","normal");
+if(!["normal","romance","futebol","romance_futebol"].includes(storyMode))storyMode="normal";
+let storyFormat=carregar("warxt_story_format","grupo");
+if(!["grupo","individual"].includes(storyFormat))storyFormat="grupo";
+
+function mudarModoRomance(modo){
+ if(!["normal","romance","intenso"].includes(modo))modo="normal";
+ romanceMode=modo;
+ try{localStorage.setItem("warxt_romance_mode",modo)}catch(e){}
+ const textos={
+  normal:"Conversa normal, respeitando a personalidade do personagem.",
+  romance:"Mais carinho, elogios, paqueras inocentes e momentos românticos.",
+  intenso:"Sentimentos mais evidentes, declarações e ciúmes leves, mantendo cada personalidade."
+ };
+ const seletor=document.getElementById("modoRomance");
+ const info=document.getElementById("romanceInfo");
+ if(seletor)seletor.value=modo;
+ if(info)info.textContent=textos[modo];
+}
+
+function mudarModoHistoria(modo){
+ if(!["normal","romance","futebol","romance_futebol"].includes(modo))modo="normal";
+ storyMode=modo;
+ try{localStorage.setItem("warxt_story_mode",modo)}catch(e){}
+ const descricoes={
+  normal:"História normal: foco nas personalidades e no contexto.",
+  romance:"Romance: carinho, paqueras inocentes, sentimentos e confissões apropriadas à idade.",
+  futebol:"Futebol: partidas, narração de jogadas, passes, dribles, gols, placar e decisões do protagonista.",
+  romance_futebol:"Romance + Futebol: combine vida escolar, relações entre personagens, treinos e partidas."
+ };
+ document.getElementById("modoHistoria").value=modo;
+ document.getElementById("romanceInfo").textContent=descricoes[modo];
+}
+
+function mudarFormatoHistoria(formato){
+ if(!["grupo","individual"].includes(formato))formato="grupo";
+ storyFormat=formato;
+ try{localStorage.setItem("warxt_story_format",formato)}catch(e){}
+ document.getElementById("formatoHistoria").value=formato;
+ document.getElementById("grupoInfo").textContent=formato==="grupo"
+  ?"Modo grupo: a IA pode interpretar vários personagens, diálogos e ações, mantendo cada personalidade distinta. Não controle as falas nem as decisões do protagonista pelo usuário."
+  :"Modo individual: concentre a cena no personagem escolhido, sem impedir participações naturais de outros personagens quando fizer sentido.";
+}
 
 function guardar(){
  try{
@@ -297,6 +367,9 @@ function limparPesquisas(){buscas=[];guardar();verPesquisas()}
 function abrir(i){
  if(!personagens[i])return;
  atual=i;esconder();document.getElementById("chat").style.display="block";
+ mudarModoRomance(romanceMode);
+ mudarModoHistoria(storyMode);
+ mudarFormatoHistoria(storyFormat);
  document.getElementById("titulo").textContent=personagens[i].nome;
  const avatar=document.getElementById("avatarChat");
  if(personagens[i].avatar){avatar.src=personagens[i].avatar;avatar.style.display="block"}
@@ -330,11 +403,11 @@ async function enviar(){
  status.textContent="🌸 Conectando à Groq...";
 
  try{
-  // Converte o histórico para o formato exigido pelo servidor.
   const historico=p.mensagens.slice(-13,-1).map(m=>({
    role:m.de==="voce"?"user":"assistant",
    content:String(m.texto||"")
   }));
+
   const contexto=[
    "Você é o personagem "+p.nome+".",
    "Personalidade:\n"+(p.personalidade||"Seja amigável e natural."),
@@ -347,7 +420,14 @@ async function enviar(){
   const resposta=await fetch(API_URL,{
    method:"POST",
    headers:{"Content-Type":"application/json"},
-   body:JSON.stringify({message:t,personality:contexto,history:historico})
+   body:JSON.stringify({
+    message:t,
+    personality:contexto,
+    history:historico,
+    romanceMode:romanceMode,
+    storyMode:storyMode,
+    storyFormat:storyFormat
+   })
   });
   let dados;
   try{dados=await resposta.json()}
@@ -367,6 +447,9 @@ async function enviar(){
 document.getElementById("texto").addEventListener("keydown",e=>{
  if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();enviar()}
 });
+mudarModoRomance(romanceMode);
+mudarModoHistoria(storyMode);
+mudarFormatoHistoria(storyFormat);
 mostrarLista();
 </script>
 </body>
