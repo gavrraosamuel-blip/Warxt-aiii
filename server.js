@@ -3,13 +3,14 @@ const express = require("express");
 const cors = require("cors");
 
 const app = express();
+
 app.use(cors());
 app.use(express.json({ limit: "2mb" }));
 
 const PORT = process.env.PORT || 3000;
 const GROQ_API_KEY = process.env.GROQ_API_KEY;
 const MODEL =
-  process.env.GROQ_MODEL || "llama-3.3-70b-versatile";
+  process.env.GROQ_MODEL || "openai/gpt-oss-120b";
 
 app.get("/", (req, res) => {
   res.send("Warxt AI API está funcionando! 💜");
@@ -35,10 +36,11 @@ app.post("/api/chat", async (req, res) => {
       {
         role: "system",
         content:
-          "Você é um personagem fictício do Warxt AI. " +
-          "Responda em português brasileiro, respeite a personalidade, " +
-          "a história e o contexto fornecidos. Interprete ações entre " +
-          "asteriscos como ações narrativas. Seja natural e coerente.\n\n" +
+          "Você interpreta um personagem fictício do Warxt AI. " +
+          "Responda sempre em português brasileiro. " +
+          "Respeite a personalidade, a história e o contexto. " +
+          "Interprete ações entre asteriscos como ações narrativas. " +
+          "Seja natural, expressivo e coerente.\n\n" +
           "Personalidade e contexto do personagem:\n" +
           String(personality || "Personagem amigável.")
       }
@@ -59,7 +61,10 @@ app.post("/api/chat", async (req, res) => {
       }
     }
 
-    messages.push({ role: "user", content: message });
+    messages.push({
+      role: "user",
+      content: message
+    });
 
     const response = await fetch(
       "https://api.groq.com/openai/v1/chat/completions",
@@ -82,8 +87,11 @@ app.post("/api/chat", async (req, res) => {
 
     if (!response.ok) {
       console.error("Erro Groq:", data);
+
       return res.status(response.status).json({
-        error: "A Groq não conseguiu responder. Verifique o servidor."
+        error:
+          data.error?.message ||
+          "A Groq não conseguiu responder."
       });
     }
 
@@ -95,10 +103,11 @@ app.post("/api/chat", async (req, res) => {
       });
     }
 
-    res.json({ reply });
+    return res.json({ reply });
   } catch (error) {
     console.error("Erro no servidor:", error);
-    res.status(500).json({
+
+    return res.status(500).json({
       error: "Erro interno ao conversar com a IA."
     });
   }
