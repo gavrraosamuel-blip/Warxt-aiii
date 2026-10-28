@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -9,7 +10,7 @@
 *{box-sizing:border-box}
 :root{--bg:#10091b;--panel:#211532;--pink:#ffadd8;--pink-light:#ffd5e9;--purple:#c3a4ff;--border:#80518b;--text:#fff5fc}
 body{margin:0;background:radial-gradient(ellipse at 50% 0%,#422545 0%,transparent 55%),var(--bg);color:var(--text);font-family:Arial,sans-serif;min-height:100vh}
-header{background:linear-gradient(145deg,#241438,#492542,#30203f);padding:20px 14px;text-align:center;border-bottom:2px solid var(--pink);position:relative;overflow:hidden}
+header{background:linear-gradient(145deg,#241438,#492542,#30203f);padding:20px 14px;text-align:center;border-bottom:2px solid var(--pink)}
 header h1{margin:5px 0;color:var(--pink-light);text-shadow:0 0 16px #ff8ac477;letter-spacing:1px}
 header p{color:#ead8f7;margin:8px 0 14px}
 .sakura{color:var(--pink);font-size:21px;letter-spacing:7px;margin-bottom:8px}
@@ -18,9 +19,8 @@ main{padding:14px;max-width:650px;margin:auto}
 .card{background:linear-gradient(145deg,#291a39,#211532);border:1px solid var(--border);border-radius:16px;padding:15px;margin:12px 0;box-shadow:0 5px 18px #0003}
 .card h2{color:var(--pink-light)}
 button{background:linear-gradient(135deg,#ffb8dc,#d7b5ff);color:#35152e;border:0;border-radius:10px;padding:12px;font-weight:bold;margin:4px;cursor:pointer}
-button:hover{filter:brightness(1.08)}
 button:disabled{opacity:.6;cursor:wait}
-input,textarea{width:100%;padding:12px;margin:7px 0;background:#180f25;color:var(--text);border:1px solid var(--border);border-radius:10px;font:inherit}
+input,textarea,select{width:100%;padding:12px;margin:7px 0;background:#180f25;color:var(--text);border:1px solid var(--border);border-radius:10px;font:inherit}
 input:focus,textarea:focus,select:focus{outline:2px solid var(--pink);border-color:var(--pink)}
 textarea{min-height:100px;resize:vertical}
 label{display:block;margin-top:12px;color:var(--pink-light)}
@@ -42,7 +42,6 @@ footer{text-align:center;color:#d7b5e8;padding:15px}
 .personagem-linha button{flex:1 1 auto}
 #fotoPreview{display:none}
 .foto-acoes{display:flex;flex-wrap:wrap;gap:4px}
-select{width:100%;padding:12px;margin:7px 0;background:#180f25;color:var(--text);border:1px solid var(--border);border-radius:10px;font:inherit}
 .romance-info{color:var(--pink-light);font-size:13px;line-height:1.5}
 @media(max-width:400px){header{padding:16px 8px}main{padding:9px}.card{padding:12px}button{padding:11px 9px}}
 </style>
@@ -59,6 +58,7 @@ select{width:100%;padding:12px;margin:7px 0;background:#180f25;color:var(--text)
   <button onclick="verPesquisas()">📚 Pesquisas recentes</button>
  </div>
 </header>
+
 <main>
 <section id="home">
  <div class="card">
@@ -99,7 +99,7 @@ select{width:100%;padding:12px;margin:7px 0;background:#180f25;color:var(--text)
  <label>Nome de usuário</label>
  <input id="usuario" maxlength="100" placeholder="Como quer ser chamado?">
  <label>Persona do usuário</label>
- <textarea id="persona" maxlength="100000" placeholder="Sua personalidade, aparência fictícia, gostos, papel na história e como os personagens devem tratar você."></textarea>
+ <textarea id="persona" maxlength="100000" placeholder="Sua personalidade, aparência fictícia, gostos e papel na história."></textarea>
  <button onclick="salvarPerfil()">💾 Salvar perfil</button>
  <button onclick="inicio()">Voltar</button>
 </section>
@@ -116,13 +116,14 @@ select{width:100%;padding:12px;margin:7px 0;background:#180f25;color:var(--text)
  <div class="sakura">🌸 Uma nova conversa 🌸</div>
  <img id="avatarChat" class="avatar" alt="Avatar do personagem" style="display:none">
  <h2 id="titulo"></h2>
+
  <label for="modoRomance">💗 Modo de conversa</label>
  <select id="modoRomance" onchange="mudarModoRomance(this.value)">
   <option value="normal">🌸 Normal</option>
   <option value="romance">💗 Romance</option>
   <option value="intenso">💞 Romance intenso</option>
  </select>
- <p id="romanceInfo" class="romance-info">Conversa normal, respeitando a personalidade do personagem.</p>
+ <p id="romanceInfo" class="romance-info"></p>
 
  <label for="modoHistoria">⚽💗 Tema da história</label>
  <select id="modoHistoria" onchange="mudarModoHistoria(this.value)">
@@ -137,7 +138,7 @@ select{width:100%;padding:12px;margin:7px 0;background:#180f25;color:var(--text)
   <option value="grupo">👥 História em grupo</option>
   <option value="individual">🌷 História individual</option>
  </select>
- <p id="grupoInfo" class="romance-info">Modo grupo: a IA pode interpretar vários personagens, diálogos e ações, mantendo cada personalidade distinta.</p>
+ <p id="grupoInfo" class="romance-info"></p>
 
  <div id="mensagens"></div>
  <p id="status" class="status" role="status" aria-live="polite"></p>
@@ -145,6 +146,7 @@ select{width:100%;padding:12px;margin:7px 0;background:#180f25;color:var(--text)
  <button id="enviarBtn" onclick="enviar()">💌 Enviar</button>
  <button onclick="inicio()">Início</button>
 </section>
+
 <footer>
  <p>🌸 Warxt AI · Seu universo. Suas histórias. 🌸</p>
  <small>Dados guardados neste navegador.</small>
@@ -162,9 +164,12 @@ let perfil={usuario:"",persona:""};
 let fotoSelecionada="";
 
 function carregar(chave,padrao){
- try{const v=JSON.parse(localStorage.getItem(chave)||"null");return v===null?padrao:v}
- catch(e){return padrao}
+ try{
+  const v=JSON.parse(localStorage.getItem(chave)||"null");
+  return v===null?padrao:v;
+ }catch(e){return padrao}
 }
+
 personagens=carregar("warxt_personagens",[]);
 if(!Array.isArray(personagens))personagens=[];
 buscas=carregar("warxt_pesquisas",[]);
@@ -174,8 +179,10 @@ if(!perfil||typeof perfil!=="object")perfil={usuario:"",persona:""};
 
 let romanceMode=carregar("warxt_romance_mode","normal");
 if(!["normal","romance","intenso"].includes(romanceMode))romanceMode="normal";
+
 let storyMode=carregar("warxt_story_mode","normal");
 if(!["normal","romance","futebol","romance_futebol"].includes(storyMode))storyMode="normal";
+
 let storyFormat=carregar("warxt_story_format","grupo");
 if(!["grupo","individual"].includes(storyFormat))storyFormat="grupo";
 
@@ -186,12 +193,10 @@ function mudarModoRomance(modo){
  const textos={
   normal:"Conversa normal, respeitando a personalidade do personagem.",
   romance:"Mais carinho, elogios, paqueras inocentes e momentos românticos.",
-  intenso:"Sentimentos mais evidentes, declarações e ciúmes leves, mantendo cada personalidade."
+  intenso:"Sentimentos evidentes, declarações e ciúmes leves, mantendo cada personalidade."
  };
- const seletor=document.getElementById("modoRomance");
- const info=document.getElementById("romanceInfo");
- if(seletor)seletor.value=modo;
- if(info)info.textContent=textos[modo];
+ document.getElementById("modoRomance").value=modo;
+ document.getElementById("romanceInfo").textContent=textos[modo];
 }
 
 function mudarModoHistoria(modo){
@@ -200,9 +205,9 @@ function mudarModoHistoria(modo){
  try{localStorage.setItem("warxt_story_mode",modo)}catch(e){}
  const descricoes={
   normal:"História normal: foco nas personalidades e no contexto.",
-  romance:"Romance: carinho, paqueras inocentes, sentimentos e confissões apropriadas à idade.",
-  futebol:"Futebol: partidas, narração de jogadas, passes, dribles, gols, placar e decisões do protagonista.",
-  romance_futebol:"Romance + Futebol: combine vida escolar, relações entre personagens, treinos e partidas."
+  romance:"Romance: carinho, sentimentos e confissões apropriadas à idade.",
+  futebol:"Futebol: partidas, passes, dribles, gols e decisões do protagonista.",
+  romance_futebol:"Romance + Futebol: relações, treinos, partidas e momentos românticos."
  };
  document.getElementById("modoHistoria").value=modo;
  document.getElementById("romanceInfo").textContent=descricoes[modo];
@@ -214,8 +219,8 @@ function mudarFormatoHistoria(formato){
  try{localStorage.setItem("warxt_story_format",formato)}catch(e){}
  document.getElementById("formatoHistoria").value=formato;
  document.getElementById("grupoInfo").textContent=formato==="grupo"
-  ?"Modo grupo: a IA pode interpretar vários personagens, diálogos e ações, mantendo cada personalidade distinta. Não controle as falas nem as decisões do protagonista pelo usuário."
-  :"Modo individual: concentre a cena no personagem escolhido, sem impedir participações naturais de outros personagens quando fizer sentido.";
+  ?"Modo grupo: vários personagens podem conversar, cada um com sua personalidade. O usuário decide as ações de Yrazi."
+  :"Modo individual: foco no personagem escolhido, com participações naturais de outros quando fizer sentido.";
 }
 
 function guardar(){
@@ -225,63 +230,107 @@ function guardar(){
   localStorage.setItem("warxt_perfil",JSON.stringify(perfil));
   return true;
  }catch(e){
-  alert("O armazenamento do navegador está cheio. Tente usar fotos menores ou reduzir os textos salvos.");
+  alert("O armazenamento está cheio. Tente usar fotos menores ou reduzir os textos salvos.");
   return false;
  }
 }
+
 function esconder(){
- ["home","editor","chat","perfil","pesquisas"].forEach(id=>document.getElementById(id).style.display="none");
+ ["home","editor","chat","perfil","pesquisas"].forEach(id=>{
+  document.getElementById(id).style.display="none";
+ });
 }
+
 function inicio(){
  esconder();
  document.getElementById("home").style.display="block";
  mostrarLista(document.getElementById("busca").value);
 }
+
 function registrarBusca(q){
- q=q.trim();if(!q)return;
+ q=q.trim();
+ if(!q)return;
  buscas=[q,...buscas.filter(x=>x.toLowerCase()!==q.toLowerCase())].slice(0,MAX_HISTORICO);
  try{localStorage.setItem("warxt_pesquisas",JSON.stringify(buscas))}catch(e){}
 }
-function pesquisar(q){mostrarLista(q);if(q.trim())registrarBusca(q)}
+
+function pesquisar(q){
+ mostrarLista(q);
+ if(q.trim())registrarBusca(q);
+}
 
 function mostrarLista(filtro=""){
  const lista=document.getElementById("lista");
  lista.innerHTML="";
  personagens.forEach((p,i)=>{
   if(!(p.nome||"").toLowerCase().includes(filtro.toLowerCase()))return;
-  const card=document.createElement("div");card.className="card";
-  const linha=document.createElement("div");linha.className="personagem-linha";
+
+  const card=document.createElement("div");
+  card.className="card";
+  const linha=document.createElement("div");
+  linha.className="personagem-linha";
+
   if(p.avatar){
-   const img=document.createElement("img");img.src=p.avatar;
-   img.className="avatar-pequeno";img.alt="Foto de "+p.nome;linha.appendChild(img);
+   const img=document.createElement("img");
+   img.src=p.avatar;
+   img.className="avatar-pequeno";
+   img.alt="Foto de "+p.nome;
+   linha.appendChild(img);
   }
+
   const abrirBtn=document.createElement("button");
-  abrirBtn.textContent="🌸 "+p.nome;abrirBtn.onclick=()=>abrir(i);
+  abrirBtn.textContent="🌸 "+p.nome;
+  abrirBtn.onclick=()=>abrir(i);
+
   const editarBtn=document.createElement("button");
-  editarBtn.textContent="✏️ Editar";editarBtn.onclick=()=>editar(i);
+  editarBtn.textContent="✏️ Editar";
+  editarBtn.onclick=()=>editar(i);
+
   const excluirBtn=document.createElement("button");
   excluirBtn.textContent="🗑️ Excluir";
   excluirBtn.onclick=()=>{
    if(confirm("Excluir "+p.nome+" e suas mensagens?")){
-    personagens.splice(i,1);guardar();mostrarLista(filtro);
+    personagens.splice(i,1);
+    guardar();
+    mostrarLista(filtro);
    }
   };
-  linha.append(abrirBtn,editarBtn,excluirBtn);card.appendChild(linha);lista.appendChild(card);
+
+  linha.append(abrirBtn,editarBtn,excluirBtn);
+  card.appendChild(linha);
+  lista.appendChild(card);
  });
+
  if(!lista.children.length)lista.textContent="Nenhum personagem encontrado. 🌸";
 }
+
 function mostrarFoto(src){
  const img=document.getElementById("fotoPreview");
  if(src){img.src=src;img.style.display="block"}
  else{img.removeAttribute("src");img.style.display="none"}
 }
+
 function removerFoto(){
- fotoSelecionada="";document.getElementById("fotoArquivo").value="";mostrarFoto("");
+ fotoSelecionada="";
+ document.getElementById("fotoArquivo").value="";
+ mostrarFoto("");
 }
+
 document.getElementById("fotoArquivo").addEventListener("change",function(){
- const arquivo=this.files&&this.files[0];if(!arquivo)return;
- if(!arquivo.type.startsWith("image/")){alert("Escolha um arquivo de imagem.");this.value="";return}
- if(arquivo.size>10*1024*1024){alert("Escolha uma imagem de até 10 MB.");this.value="";return}
+ const arquivo=this.files&&this.files[0];
+ if(!arquivo)return;
+
+ if(!arquivo.type.startsWith("image/")){
+  alert("Escolha um arquivo de imagem.");
+  this.value="";
+  return;
+ }
+ if(arquivo.size>10*1024*1024){
+  alert("Escolha uma imagem de até 10 MB.");
+  this.value="";
+  return;
+ }
+
  const leitor=new FileReader();
  leitor.onerror=()=>alert("Não foi possível ler a imagem.");
  leitor.onload=()=>{
@@ -294,34 +343,49 @@ document.getElementById("fotoArquivo").addEventListener("change",function(){
    canvas.width=Math.max(1,Math.round(imagem.width*escala));
    canvas.height=Math.max(1,Math.round(imagem.height*escala));
    const contexto=canvas.getContext("2d");
-   if(!contexto){alert("Seu navegador não conseguiu processar a foto.");return}
+   if(!contexto){alert("Não foi possível processar a foto.");return}
    contexto.drawImage(imagem,0,0,canvas.width,canvas.height);
-   fotoSelecionada=canvas.toDataURL("image/jpeg",0.72);mostrarFoto(fotoSelecionada);
+   fotoSelecionada=canvas.toDataURL("image/jpeg",0.72);
+   mostrarFoto(fotoSelecionada);
   };
   imagem.src=leitor.result;
  };
  leitor.readAsDataURL(arquivo);
 });
+
 function novo(){
- editando=-1;esconder();document.getElementById("editor").style.display="block";
+ editando=-1;
+ esconder();
+ document.getElementById("editor").style.display="block";
  document.getElementById("editorTitulo").textContent="Criar personagem";
- ["nome","personalidade","fundo","primeira"].forEach(id=>document.getElementById(id).value="");
- fotoSelecionada="";document.getElementById("fotoArquivo").value="";mostrarFoto("");
+ ["nome","personalidade","fundo","primeira"].forEach(id=>{
+  document.getElementById(id).value="";
+ });
+ fotoSelecionada="";
+ document.getElementById("fotoArquivo").value="";
+ mostrarFoto("");
 }
+
 function editar(i){
- editando=i;const p=personagens[i];if(!p)return;
- esconder();document.getElementById("editor").style.display="block";
+ editando=i;
+ const p=personagens[i];
+ if(!p)return;
+ esconder();
+ document.getElementById("editor").style.display="block";
  document.getElementById("editorTitulo").textContent="Editar personagem";
  document.getElementById("nome").value=p.nome||"";
  document.getElementById("personalidade").value=p.personalidade||"";
  document.getElementById("fundo").value=p.fundo||"";
  document.getElementById("primeira").value=p.primeira||"";
- fotoSelecionada=p.avatar||"";document.getElementById("fotoArquivo").value="";
+ fotoSelecionada=p.avatar||"";
+ document.getElementById("fotoArquivo").value="";
  mostrarFoto(fotoSelecionada);
 }
+
 function salvar(){
  const nome=document.getElementById("nome").value.trim();
  if(!nome){alert("Digite o nome do personagem.");return}
+
  const dados={
   nome,
   personalidade:document.getElementById("personalidade").value,
@@ -329,57 +393,97 @@ function salvar(){
   primeira:document.getElementById("primeira").value,
   avatar:fotoSelecionada
  };
+
  if(editando>=0){
   if(!personagens[editando])return;
   const anterior={...personagens[editando]};
   personagens[editando]={...personagens[editando],...dados};
-  if(guardar())abrir(editando);else personagens[editando]=anterior;
+  if(guardar())abrir(editando);
+  else personagens[editando]=anterior;
  }else{
   const novoPersonagem={...dados,mensagens:[]};
   if(dados.primeira)novoPersonagem.mensagens.push({de:"ai",texto:dados.primeira});
   personagens.push(novoPersonagem);
   const i=personagens.length-1;
-  if(guardar())abrir(i);else personagens.pop();
+  if(guardar())abrir(i);
+  else personagens.pop();
  }
 }
+
 function abrirPerfil(){
- esconder();document.getElementById("perfil").style.display="block";
+ esconder();
+ document.getElementById("perfil").style.display="block";
  document.getElementById("usuario").value=perfil.usuario||"";
  document.getElementById("persona").value=perfil.persona||"";
 }
+
 function salvarPerfil(){
  const anterior={...perfil};
- perfil={usuario:document.getElementById("usuario").value.trim(),persona:document.getElementById("persona").value};
- if(guardar()){alert("Perfil salvo neste navegador!");inicio()}else perfil=anterior;
+ perfil={
+  usuario:document.getElementById("usuario").value.trim(),
+  persona:document.getElementById("persona").value
+ };
+ if(guardar()){
+  alert("Perfil salvo neste navegador!");
+  inicio();
+ }else perfil=anterior;
 }
+
 function verPesquisas(){
- esconder();document.getElementById("pesquisas").style.display="block";
- const area=document.getElementById("historicoBuscas");area.innerHTML="";
- if(!buscas.length){area.textContent="Nenhuma pesquisa recente.";return}
+ esconder();
+ document.getElementById("pesquisas").style.display="block";
+ const area=document.getElementById("historicoBuscas");
+ area.innerHTML="";
+ if(!buscas.length){
+  area.textContent="Nenhuma pesquisa recente.";
+  return;
+ }
  buscas.forEach(q=>{
-  const b=document.createElement("button");b.textContent="🔎 "+q;
-  b.onclick=()=>{document.getElementById("busca").value=q;inicio();pesquisar(q)};
+  const b=document.createElement("button");
+  b.textContent="🔎 "+q;
+  b.onclick=()=>{
+   document.getElementById("busca").value=q;
+   inicio();
+   pesquisar(q);
+  };
   area.appendChild(b);
  });
 }
-function limparPesquisas(){buscas=[];guardar();verPesquisas()}
+
+function limparPesquisas(){
+ buscas=[];
+ guardar();
+ verPesquisas();
+}
 
 function abrir(i){
  if(!personagens[i])return;
- atual=i;esconder();document.getElementById("chat").style.display="block";
+ atual=i;
+ esconder();
+ document.getElementById("chat").style.display="block";
  mudarModoRomance(romanceMode);
  mudarModoHistoria(storyMode);
  mudarFormatoHistoria(storyFormat);
  document.getElementById("titulo").textContent=personagens[i].nome;
+
  const avatar=document.getElementById("avatarChat");
- if(personagens[i].avatar){avatar.src=personagens[i].avatar;avatar.style.display="block"}
- else{avatar.removeAttribute("src");avatar.style.display="none"}
+ if(personagens[i].avatar){
+  avatar.src=personagens[i].avatar;
+  avatar.style.display="block";
+ }else{
+  avatar.removeAttribute("src");
+  avatar.style.display="none";
+ }
  document.getElementById("status").textContent="";
  renderizar();
 }
+
 function renderizar(){
- const area=document.getElementById("mensagens");area.innerHTML="";
- const p=personagens[atual];if(!p)return;
+ const area=document.getElementById("mensagens");
+ area.innerHTML="";
+ const p=personagens[atual];
+ if(!p)return;
+
  (p.mensagens||[]).forEach(m=>{
   const d=document.createElement("div");
   d.className="msg "+(m.de==="voce"?"user":"");
@@ -394,11 +498,16 @@ async function enviar(){
  const botao=document.getElementById("enviarBtn");
  const status=document.getElementById("status");
  const t=campo.value.trim();
+
  if(!t||atual<0||botao.disabled)return;
- const p=personagens[atual];if(!p)return;
+ const p=personagens[atual];
+ if(!p)return;
  if(!Array.isArray(p.mensagens))p.mensagens=[];
+
  p.mensagens.push({de:"voce",texto:t});
- campo.value="";guardar();renderizar();
+ campo.value="";
+ guardar();
+ renderizar();
  botao.disabled=true;
  status.textContent="🌸 Conectando à Groq...";
 
@@ -408,13 +517,81 @@ async function enviar(){
    content:String(m.texto||"")
   }));
 
+  // REGRAS COMPLETAS DO UNIVERSO WARXT E DO YRAZI
   const contexto=[
-   "Você é o personagem "+p.nome+".",
-   "Personalidade:\n"+(p.personalidade||"Seja amigável e natural."),
-   "História de fundo:\n"+(p.fundo||""),
-   "Persona do usuário:\nNome: "+(perfil.usuario||"Não informado")+
-   "\nDescrição: "+(perfil.persona||"Não informada"),
-   "Responda em português brasileiro naturalmente. Respeite a personalidade, as emoções e o contexto. Interprete ações escritas entre asteriscos como ações narrativas."
+   "Você interpreta o personagem "+p.nome+" no universo Warxt.",
+
+   "PERSONALIDADE DO PERSONAGEM:\n"+
+    (p.personalidade||"Seja amigável e natural."),
+
+   "HISTÓRIA DE FUNDO:\n"+(p.fundo||""),
+
+   "PRIMEIRA MENSAGEM E CENA INICIAL:\n"+(p.primeira||""),
+
+   "PERSONA DO USUÁRIO:\nNome: "+
+    (perfil.usuario||"Yrazi")+
+    "\nDescrição: "+(perfil.persona||"Não informada"),
+
+   `PROTAGONISTA YRAZI:
+O protagonista do universo Warxt é Yrazi, não Warxt.
+Yrazi tem cabelo loiro, olhos azuis e aparência de modelo.
+Sua beleza é extraordinária e chama a atenção naturalmente.
+Preserve essas características quando Yrazi estiver na cena.
+Não decida as falas, pensamentos ou ações de Yrazi pelo usuário.`,
+
+   `PERSONAGENS E RELACIONAMENTOS:
+Respeite as personalidades, amizades, rivalidades e histórias
+descritas nas fichas dos personagens.
+As garotas podem demonstrar sentimentos românticos por Yrazi
+com carinho, elogios, paqueras inocentes, confissões e ciúmes leves.
+Cada personagem deve manter seu jeito próprio.
+Mantenha as cenas românticas não explícitas e apropriadas à idade.`,
+
+   `DIÁLOGOS E AÇÕES:
+Responda em português brasileiro natural.
+Use diálogos claros e ações narrativas entre **asteriscos**.
+Ações entre asteriscos são narração, não falas.
+Descreva emoções, reações, ambiente e continuidade.
+Não repita cenas desnecessariamente.
+Não fale pelo usuário nem escolha as ações de Yrazi.`,
+
+   `FUTEBOL:
+Quando houver futebol, os garotos podem jogar e as garotas
+podem torcer como líderes de torcida.
+Descreva passes, dribles, velocidade, finalizações, defesas,
+gols, placar, comemorações e rivalidades.
+Yrazi é um ponta driblador, veloz e habilidoso.
+Ofereça oportunidades para o usuário decidir as próximas jogadas.
+Não decida automaticamente as ações de Yrazi.`,
+
+   `TRÊS CENÁRIOS EM ORDEM:
+1. CAMPO: comece no campo de futebol com treino ou partida,
+colegas, rivais e garotas torcendo.
+2. CAMINHO PARA O BAIRRO: depois do futebol, mostre o grupo
+caminhando junto e conversando sobre os acontecimentos.
+3. ENCONTRO NO BAIRRO: quando chegarem, desenvolva uma reunião
+com conversas, brincadeiras, sentimentos e momentos românticos.
+Mantenha essa ordem ao longo da história.
+Não pule etapas nem reinicie a história a cada mensagem.
+Continue do ponto em que a conversa parou.`,
+
+   "MODO DE CONVERSA SELECIONADO: "+romanceMode,
+   "TEMA DA HISTÓRIA SELECIONADO: "+storyMode,
+   "FORMATO DA HISTÓRIA SELECIONADO: "+storyFormat,
+
+   `REGRAS DOS MODOS:
+No modo normal, priorize a personalidade e o contexto.
+No romance, destaque carinho e sentimentos.
+No romance intenso, use confissões e emoções mais evidentes,
+sem conteúdo sexual explícito.
+No futebol, priorize partidas e jogadas.
+Em romance + futebol, combine os dois temas naturalmente.
+No formato individual, concentre-se no personagem escolhido.
+No formato grupo, permita diálogos entre vários personagens,
+mantendo as personalidades distintas.
+Não force futebol em cenas sem futebol.`,
+
+   "Continue a cena de maneira natural, coerente e envolvente."
   ].join("\n\n");
 
   const resposta=await fetch(API_URL,{
@@ -429,24 +606,37 @@ async function enviar(){
     storyFormat:storyFormat
    })
   });
+
   let dados;
   try{dados=await resposta.json()}
   catch(e){throw new Error("O servidor não retornou uma resposta válida.")}
+
   if(!resposta.ok)throw new Error(dados.error||"Erro do servidor.");
   if(typeof dados.reply!=="string")throw new Error("Resposta inválida do servidor.");
+
   p.mensagens.push({de:"ai",texto:dados.reply});
   status.textContent="";
  }catch(e){
   console.error(e);
   status.textContent="Falha na conexão: "+e.message;
-  p.mensagens.push({de:"ai",texto:"Não consegui responder agora. Verifique se o servidor da Groq está configurado e tente novamente."});
+  p.mensagens.push({
+   de:"ai",
+   texto:"Não consegui responder agora. Verifique se o servidor da Groq está funcionando e tente novamente."
+  });
  }finally{
-  guardar();renderizar();botao.disabled=false;
+  guardar();
+  renderizar();
+  botao.disabled=false;
  }
 }
+
 document.getElementById("texto").addEventListener("keydown",e=>{
- if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();enviar()}
+ if(e.key==="Enter"&&!e.shiftKey){
+  e.preventDefault();
+  enviar();
+ }
 });
+
 mudarModoRomance(romanceMode);
 mudarModoHistoria(storyMode);
 mudarFormatoHistoria(storyFormat);
