@@ -1,3 +1,4 @@
+
 const express = require("express");
 const cors = require("cors");
 const path = require("path");
@@ -33,6 +34,12 @@ const TIMES = [
   "Bourt"
 ];
 
+// Limites para reduzir o consumo de tokens por solicitação.
+const MAX_MESSAGE_CHARS = 4000;
+const MAX_PERSONALITY_CHARS = 5000;
+const MAX_HISTORY_CHARS = 4500;
+const MAX_HISTORY_MESSAGES = 8;
+
 app.get("/api/health", (req, res) => {
   res.json({
     online: true,
@@ -65,9 +72,9 @@ app.post("/api/chat", async (req, res) => {
       });
     }
 
-    if (message.length > 12000) {
+    if (message.length > MAX_MESSAGE_CHARS) {
       return res.status(400).json({
-        error: "A mensagem é muito longa. Envie uma mensagem menor."
+        error: "Sua mensagem é muito longa. Tente usar até 4.000 caracteres."
       });
     }
 
@@ -77,42 +84,46 @@ app.post("/api/chat", async (req, res) => {
           .slice(0, TIMES.length)
       : TIMES;
 
+    // Limita a personalidade enviada à API.
+    // O conteúdo original continua salvo no aplicativo.
+    const personalidadeLimitada =
+      typeof personality === "string"
+        ? personality.slice(0, MAX_PERSONALITY_CHARS)
+        : "";
+
     const instrucao = `
 Você é a inteligência narrativa do Warxt AI.
-Responda sempre em português brasileiro natural.
+Responda em português brasileiro natural.
 
-MODO FIXO: ROMANCE + FUTEBOL — HISTÓRIA EM GRUPO.
+UNIVERSO: Yrazi é o protagonista controlado pelo usuário.
+Não confunda Yrazi com o nome do universo Warxt.
 
-REGRAS DA HISTÓRIA:
-- Misture futebol e romance na mesma história, sem separar em modos.
-- Mantenha a continuidade dos acontecimentos, partidas e relacionamentos.
-- Narre treinos, campeonatos, dribles, passes, gols, defesas,
-  placares, rivalidades e comemorações quando fizer sentido.
-- Inclua diálogos, emoções, reações e momentos carinhosos apropriados.
-- Faça os personagens conversarem entre si quando a cena pedir.
-- Respeite a personalidade e a história de cada personagem.
+REGRAS:
+- Misture futebol e romance naturalmente, conforme a cena.
+- Mantenha a continuidade da história, partidas e relacionamentos.
+- Narre dribles, passes, gols, defesas e comemorações quando fizer sentido.
+- Inclua diálogos, emoções, reações e carinho apropriado à idade.
+- Respeite a personalidade e o histórico de cada personagem.
 - Use ações entre asteriscos quando combinarem com a narrativa.
-- Não controle as falas, escolhas ou ações do protagonista do usuário.
-- Não invente que uma partida já aconteceu se ainda não aconteceu.
-- Não force futebol em toda mensagem; acompanhe o contexto da conversa.
-- Mantenha o romance leve, respeitoso e apropriado à idade dos personagens.
+- Nunca decida as falas, escolhas ou ações de Yrazi pelo usuário.
+- Não invente resultados de partidas ainda não realizadas.
+- Não force futebol ou romance em todas as mensagens.
+- Continue a cena a partir da mensagem mais recente.
 
-TIMES DISPONÍVEIS PARA CONFRONTOS:
+TIMES:
 ${timesEscolhidos.join(", ")}
 
-Use esses times para organizar confrontos e campeonatos.
-Não precisa colocar todos na mesma partida.
-Se o usuário escolher um adversário específico, respeite essa escolha.
+Respeite o adversário escolhido pelo usuário.
+Não coloque todos os times na mesma partida sem motivo.
 
-MODO DE ROMANCE: ${romanceMode}
-MODO DA HISTÓRIA: ${storyMode}
-FORMATO: ${storyFormat}
+MODO DE ROMANCE: ${String(romanceMode).slice(0, 50)}
+MODO DA HISTÓRIA: ${String(storyMode).slice(0, 80)}
+FORMATO: ${String(storyFormat).slice(0, 50)}
 
-PERSONALIDADE E CONTEXTO DO PERSONAGEM:
-${String(personality).slice(0, 100000)}
+PERSONALIDADE E CONTEXTO:
+${personalidadeLimitada}
 
-A mensagem do usuário e o histórico definem a cena atual.
-Continue naturalmente a partir deles.
+Priorize a mensagem atual e mantenha respostas naturais.
 `;
 
     const mensagens = [
@@ -122,20 +133,44 @@ Continue naturalmente a partir deles.
       }
     ];
 
-    if (Array.isArray(history)) {
-      for (const item of history.slice(-30)) {
-        if (
+    // Seleciona as mensagens mais recentes respeitando
+    // um limite total de caracteres para o histórico.
+    const historicoValido = Array.isArray(history)
+      ? history.filter(item =>
           item &&
           ["user", "assistant"].includes(item.role) &&
           typeof item.content === "string"
-        ) {
-          mensagens.push({
-            role: item.role,
-            content: item.content.slice(0, 12000)
-          });
-        }
-      }
+        )
+      : [];
+
+    const recentes = [];
+    let caracteresHistorico = 0;
+
+    for (
+      let i = historicoValido.length - 1;
+      i >= 0 && recentes.length < MAX_HISTORY_MESSAGES;
+      i--
+    ) {
+      const item = historicoValido[i];
+      const restante = MAX_HISTORY_CHARS - caracteresHistorico;
+
+      if (restante <= 0) break;
+
+      const conteudo = item.content.slice(
+        -Math.min(1500, restante)
+      );
+
+      if (!conteudo.trim()) continue;
+
+      recentes.unshift({
+        role: item.role,
+        content: conteudo
+      });
+
+      caracteresHistorico += conteudo.length;
     }
+
+    mensagens.push(...recentes);
 
     mensagens.push({
       role: "user",
@@ -147,14 +182,14 @@ Continue naturalmente a partir deles.
       {
         method: "POST",
         headers: {
-          "Authorization": `Bearer ${GROQ_API_KEY}`,
+          Authorization: `Bearer ${GROQ_API_KEY}`,
           "Content-Type": "application/json"
         },
         body: JSON.stringify({
           model: MODEL,
           messages: mensagens,
           temperature: 0.85,
-          max_tokens: 1200
+          max_tokens: 900
         })
       }
     );
@@ -164,10 +199,25 @@ Continue naturalmente a partir deles.
     if (!resposta.ok) {
       console.error("Erro da Groq:", resposta.status, dados);
 
+      if (
+        resposta.status === 429 ||
+        dados.error?.code === "rate_limit_exceeded"
+      ) {
+        return res.status(429).json({
+          error:
+            "O limite de uso da IA foi atingido. Aguarde um pouco e tente novamente com uma mensagem menor."
+        });
+      }
+
+      if (resposta.status === 401) {
+        return res.status(502).json({
+          error:
+            "A chave da Groq é inválida. Confira GROQ_API_KEY nas variáveis do Render."
+        });
+      }
+
       return res.status(502).json({
-        error: resposta.status === 401
-          ? "A chave da Groq é inválida. Confira a variável GROQ_API_KEY."
-          : "A Groq não conseguiu responder. Tente novamente."
+        error: "A Groq não conseguiu responder. Tente novamente."
       });
     }
 
