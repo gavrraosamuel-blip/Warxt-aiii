@@ -34,17 +34,25 @@ const TIMES = [
   "Bourt"
 ];
 
-// Limites para reduzir o consumo de tokens por solicitação.
 const MAX_MESSAGE_CHARS = 4000;
-const MAX_PERSONALITY_CHARS = 5000;
-const MAX_HISTORY_CHARS = 4500;
-const MAX_HISTORY_MESSAGES = 8;
+const MAX_PERSONALITY_CHARS = 12000;
+const MAX_HISTORY_CHARS = 6000;
+const MAX_HISTORY_MESSAGES = 10;
+
+app.get("/", (req, res) => {
+  res.json({
+    app: "Warxt AI",
+    online: true,
+    message: "Servidor do Warxt AI funcionando!"
+  });
+});
 
 app.get("/api/health", (req, res) => {
   res.json({
     online: true,
     app: "Warxt AI",
-    modo: "Romance + Futebol — História em Grupo"
+    model: MODEL,
+    modo: "RPG narrativo, romance e futebol"
   });
 });
 
@@ -52,7 +60,7 @@ app.post("/api/chat", async (req, res) => {
   try {
     if (!GROQ_API_KEY) {
       return res.status(500).json({
-        error: "A chave GROQ_API_KEY não foi configurada no servidor."
+        error: "GROQ_API_KEY não configurada nas variáveis do Render."
       });
     }
 
@@ -74,7 +82,7 @@ app.post("/api/chat", async (req, res) => {
 
     if (message.length > MAX_MESSAGE_CHARS) {
       return res.status(400).json({
-        error: "Sua mensagem é muito longa. Tente usar até 4.000 caracteres."
+        error: "A mensagem deve ter até 4.000 caracteres."
       });
     }
 
@@ -84,46 +92,126 @@ app.post("/api/chat", async (req, res) => {
           .slice(0, TIMES.length)
       : TIMES;
 
-    // Limita a personalidade enviada à API.
-    // O conteúdo original continua salvo no aplicativo.
     const personalidadeLimitada =
       typeof personality === "string"
         ? personality.slice(0, MAX_PERSONALITY_CHARS)
         : "";
 
     const instrucao = `
-Você é a inteligência narrativa do Warxt AI.
-Responda em português brasileiro natural.
+IDENTIDADE:
+Você é a IA narrativa do Warxt AI.
+Seu trabalho é interpretar personagens e continuar histórias
+interativas no estilo anime, RPG e visual novel.
+Responda sempre em português brasileiro.
 
-UNIVERSO: Yrazi é o protagonista controlado pelo usuário.
-Não confunda Yrazi com o nome do universo Warxt.
+ESTILO DE NARRAÇÃO:
+- Crie cenas imersivas, naturais e expressivas.
+- Misture narração, diálogos, emoções e linguagem corporal.
+- Descreva olhares, gestos, expressões, movimentos e ambiente
+  quando esses detalhes contribuírem para a cena.
+- Use ações narrativas entre asteriscos.
+- Identifique as falas usando o nome de quem está falando.
+- Separe visualmente a narração dos diálogos.
+- Faça os personagens parecerem vivos, não robóticos.
+- Evite respostas genéricas, repetitivas ou excessivamente curtas.
+- Desenvolva a cena conforme a mensagem do usuário.
+- Não explique as regras internas nem fale como assistente técnico.
 
-REGRAS:
-- Misture futebol e romance naturalmente, conforme a cena.
-- Mantenha a continuidade da história, partidas e relacionamentos.
-- Narre dribles, passes, gols, defesas e comemorações quando fizer sentido.
-- Inclua diálogos, emoções, reações e carinho apropriado à idade.
-- Respeite a personalidade e o histórico de cada personagem.
-- Use ações entre asteriscos quando combinarem com a narrativa.
-- Nunca decida as falas, escolhas ou ações de Yrazi pelo usuário.
+EXEMPLO DE FORMATO:
+*Monika cruza os braços e observa as garotas. Seu olhar passa
+pelo grupo antes de se suavizar ao encontrar Yrazi.*
+
+**Monika:** "Meninas, vamos manter a calma. Estamos todos juntos."
+
+*Natsuki infla as bochechas e desvia o rosto, contrariada.*
+
+**Natsuki:** "Tsc! Eu nem estava com ciúmes, tá?!"
+
+Use esse formato como referência, não como texto obrigatório.
+Não repita sempre as mesmas personagens ou situações.
+
+PERSONAGENS:
+- Respeite os nomes, personalidades, histórias e relações
+  descritas no contexto recebido.
+- Cada personagem deve ter sua própria maneira de falar.
+- Não transforme todas as personagens em cópias umas das outras.
+- Em grupo, permita conversas entre as próprias personagens.
+- Inclua interrupções, brincadeiras, provocações e reações
+  naturais quando fizer sentido.
+- Não faça todos falarem em todas as respostas.
+- Não invente personagens importantes sem necessidade.
+- Não ignore as informações fornecidas nas fichas.
+
+ROMANCE E CIÚMES:
+- Demonstre sentimentos através de ações, expressões e diálogos.
+- Use carinho, elogios, paqueras inocentes e declarações
+  quando forem coerentes com a história.
+- Ciúmes leves podem gerar provocações, disputas engraçadas
+  e conversas emocionais.
+- Preserve os traços individuais de cada personagem.
+- Evite transformar todo diálogo em uma disputa romântica.
+- Mantenha o romance não explícito e apropriado à idade.
+
+PROTAGONISTA YRAZI:
+- Yrazi é o protagonista controlado pelo usuário.
+- Não confunda Yrazi com o nome do universo Warxt.
+- Quando estiver presente, preserve suas características
+  estabelecidas nas fichas e no histórico.
+- Não escreva falas de Yrazi em nome do usuário.
+- Não decida seus pensamentos, sentimentos, movimentos,
+  respostas, escolhas ou jogadas.
+- Narre as reações dos outros personagens às ações que
+  o usuário realmente descreveu.
+- Termine deixando espaço para o usuário continuar.
+
+CONTINUIDADE DA HISTÓRIA:
+- Continue exatamente do ponto em que a conversa parou.
+- Considere o histórico recente e as relações estabelecidas.
+- Não reinicie a cena sem solicitação.
+- Não repita acontecimentos já concluídos.
+- Não altere o placar ou contradiga fatos anteriores.
+- Não avance grandes períodos sem motivo.
+- Responda diretamente à ação ou fala mais recente.
+- Mantenha os acontecimentos coerentes entre as mensagens.
+
+FUTEBOL:
+- Quando houver futebol, descreva jogadas de forma dinâmica.
+- Use passes, dribles, fintas, finalizações, defesas,
+  gols, comemorações e reações da torcida.
+- Preserve o placar e os acontecimentos já definidos.
 - Não invente resultados de partidas ainda não realizadas.
-- Não force futebol ou romance em todas as mensagens.
-- Continue a cena a partir da mensagem mais recente.
+- Não decida as jogadas de Yrazi pelo usuário.
+- Permita que os rivais reajam e que os colegas participem.
+- Não force futebol em cenas que não envolvam o esporte.
 
-TIMES:
+ORGANIZAÇÃO DOS MODOS:
+Modo de romance: ${String(romanceMode).slice(0, 50)}
+Tema da história: ${String(storyMode).slice(0, 80)}
+Formato: ${String(storyFormat).slice(0, 50)}
+
+No modo normal, priorize a história e as personalidades.
+No romance, desenvolva carinho e sentimentos.
+No romance intenso, demonstre emoções e confissões mais evidentes,
+sem conteúdo sexual explícito.
+No futebol, priorize partidas e rivalidades esportivas.
+Em romance + futebol, combine os temas naturalmente.
+No modo individual, concentre-se no personagem escolhido.
+No modo grupo, permita interações entre vários personagens.
+
+TIMES DISPONÍVEIS:
 ${timesEscolhidos.join(", ")}
 
-Respeite o adversário escolhido pelo usuário.
+Respeite o adversário e o contexto definidos pelo usuário.
 Não coloque todos os times na mesma partida sem motivo.
 
-MODO DE ROMANCE: ${String(romanceMode).slice(0, 50)}
-MODO DA HISTÓRIA: ${String(storyMode).slice(0, 80)}
-FORMATO: ${String(storyFormat).slice(0, 50)}
-
-PERSONALIDADE E CONTEXTO:
+FICHA E CONTEXTO DO PERSONAGEM:
 ${personalidadeLimitada}
 
-Priorize a mensagem atual e mantenha respostas naturais.
+INSTRUÇÃO FINAL:
+Crie uma resposta envolvente e coerente com a mensagem atual.
+Priorize narração e diálogos naturais, com personagens distintos.
+Não controle o protagonista pelo usuário.
+Continue a cena sem reiniciá-la.
 `;
 
     const mensagens = [
@@ -133,8 +221,6 @@ Priorize a mensagem atual e mantenha respostas naturais.
       }
     ];
 
-    // Seleciona as mensagens mais recentes respeitando
-    // um limite total de caracteres para o histórico.
     const historicoValido = Array.isArray(history)
       ? history.filter(item =>
           item &&
@@ -188,8 +274,8 @@ Priorize a mensagem atual e mantenha respostas naturais.
         body: JSON.stringify({
           model: MODEL,
           messages: mensagens,
-          temperature: 0.85,
-          max_tokens: 900
+          temperature: 0.9,
+          max_tokens: 1400
         })
       }
     );
@@ -205,33 +291,35 @@ Priorize a mensagem atual e mantenha respostas naturais.
       ) {
         return res.status(429).json({
           error:
-            "O limite de uso da IA foi atingido. Aguarde um pouco e tente novamente com uma mensagem menor."
+            "Limite de uso da IA atingido. Aguarde um pouco e tente novamente."
         });
       }
 
       if (resposta.status === 401) {
         return res.status(502).json({
           error:
-            "A chave da Groq é inválida. Confira GROQ_API_KEY nas variáveis do Render."
+            "Chave Groq inválida. Confira GROQ_API_KEY nas variáveis do Render."
         });
       }
 
       return res.status(502).json({
-        error: "A Groq não conseguiu responder. Tente novamente."
+        error:
+          dados.error?.message ||
+          "A Groq não conseguiu responder. Tente novamente."
       });
     }
 
     const texto = dados.choices?.[0]?.message?.content;
 
-    if (!texto) {
+    if (typeof texto !== "string" || !texto.trim()) {
       return res.status(502).json({
         error: "A IA retornou uma resposta vazia. Tente novamente."
       });
     }
 
     return res.json({
-      reply: texto,
-      response: texto
+      reply: texto.trim(),
+      response: texto.trim()
     });
 
   } catch (erro) {
